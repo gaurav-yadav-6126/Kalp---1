@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SpotOn | My Tickets &amp; Personal Manager</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#4e2120",
+                        "surface-variant": "#ffd2d0",
+                        "primary-container": "#ff7851",
+                        "outline-variant": "#e09c99",
+                        "secondary-container": "#c9cfff",
+                        "secondary": "#4052b6",
+                        "surface-container-high": "#ffdad8",
+                        "primary-dim": "#962700",
+                        "background": "#fff4f3",
+                        "surface-container-low": "#ffedeb",
+                        "surface-bright": "#fff4f3",
+                        "inverse-surface": "#240304",
+                        "on-surface": "#4e2120",
+                        "surface-container": "#ffe1e0",
+                        "on-tertiary-fixed-variant": "#00675d",
+                        "on-primary-fixed-variant": "#581300",
+                        "on-surface-variant": "#834c4b",
+                        "surface-dim": "#ffc7c4",
+                        "on-tertiary": "#c0fff4",
+                        "inverse-on-surface": "#ce8c89",
+                        "surface-container-highest": "#ffd2d0",
+                        "tertiary-container": "#85f6e5",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#2a3da1",
+                        "secondary-fixed-dim": "#b7c0ff",
+                        "on-tertiary-fixed": "#004841",
+                        "primary": "#ab2d00",
+                        "primary-fixed-dim": "#ff5d2b",
+                        "secondary-fixed": "#c9cfff",
+                        "on-error": "#ffefee",
+                        "tertiary-fixed": "#85f6e5",
+                        "error-container": "#fb5151",
+                        "on-secondary": "#f3f1ff",
+                        "on-secondary-fixed": "#10268d",
+                        "primary-fixed": "#ff7851",
+                        "on-primary-fixed": "#000000",
+                        "outline": "#a26765",
+                        "surface-tint": "#ab2d00",
+                        "surface": "#fff4f3",
+                        "tertiary": "#00675d",
+                        "tertiary-dim": "#005a51",
+                        "on-primary": "#ffefeb",
+                        "tertiary-fixed-dim": "#76e7d7",
+                        "on-secondary-fixed-variant": "#3447ab",
+                        "error-dim": "#9f0519",
+                        "on-tertiary-container": "#005c53",
+                        "secondary-dim": "#3346a9",
+                        "on-error-container": "#570008",
+                        "on-primary-container": "#470e00",
+                        "inverse-primary": "#ff5722",
+                        "error": "#b31b25"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scannable-qr {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%234e2120'%3E%3Cpath d='M0 0h40v40H0V0zm10 10v20h20V10H10zm50-10h40v40H60V0zm10 10v20h20V10H70zM0 60h40v40H0V60zm10 10v20h20V70H10zm50 0h10v10H60V70zm10 10h10v10H70V80zm10-10h10v10H80V70zm10 10h10v10H90V80zm0-10h10v10H90V70zm-10 20h10v10H80V90z'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen flex flex-col">
+<nav class="bg-[#fff4f3]/80 dark:bg-[#4e2120]/90 backdrop-blur-md text-[#ab2d00] dark:text-[#ff7851] docked full-width top-0 sticky z-50 shadow-[0_12px_32px_rgba(78,33,32,0.05)]">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-black text-[#ab2d00] dark:text-[#ff7851] tracking-tighter font-headline">SpotOn</div>
+<div class="hidden md:flex items-center gap-8 font-['Plus_Jakarta_Sans'] font-bold text-sm tracking-tight">
+<a class="text-[#4e2120]/70 dark:text-[#fff4f3]/70 font-medium hover:text-[#ab2d00] transition-colors duration-300" href="#">Discover</a>
+<a class="text-[#4e2120]/70 dark:text-[#fff4f3]/70 font-medium hover:text-[#ab2d00] transition-colors duration-300" href="#">Organize</a>
+<a class="text-[#4e2120]/70 dark:text-[#fff4f3]/70 font-medium hover:text-[#ab2d00] transition-colors duration-300" href="#">Community</a>
+<a class="text-[#4e2120]/70 dark:text-[#fff4f3]/70 font-medium hover:text-[#ab2d00] transition-colors duration-300" href="#">Impact</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined p-2 hover:bg-surface-container rounded-full transition-colors">notifications</button>
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="Professional headshot of a young creative person with a friendly expression and modern glasses in a bright studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1NgBR4FP2Gy56RWDOAs9tt7nYjYWXrg888LfKooNWhZgPJQyX9kYGS-IQBmpkUtinp4JvdCIC25ToKS0SmAVDIcmaT0MM6Q01uwvfdVodAMz0hM5XsIGD949h2whOn3mCHCraBuZmwBX8JX0AVjwTnXECloBYFcBnxyOG5wyFVKVz6FdQG3KwxqL2f_ebkWSz_z2Wm0sm_4Llf5nEfZAbZ4NR5Kcs0Zv9bK2aN8z7MsHD7NDqnuNX5Tq7TgjoGwc0k3o_QGBH1hk"/>
+</div>
+</div>
+</div>
+</nav>
+<main class="flex-grow max-w-7xl mx-auto w-full px-6 py-8 pb-32">
+<header class="mb-10">
+<h1 class="text-5xl font-extrabold font-headline tracking-tighter text-on-surface mb-2">My Tickets</h1>
+<p class="text-on-surface-variant font-medium">Manage your entries, badges, and local impacts.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<section class="lg:col-span-8 space-y-8">
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest p-8 shadow-sm group">
+<div class="absolute top-0 right-0 p-4">
+<span class="bg-tertiary text-on-tertiary px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">Active Now</span>
+</div>
+<div class="flex flex-col md:flex-row gap-8 items-start">
+<div class="w-full md:w-64 aspect-square bg-surface-container rounded-xl flex items-center justify-center p-6 border-2 border-outline-variant/10">
+<div class="w-full h-full scannable-qr opacity-90"></div>
+</div>
+<div class="flex-grow space-y-4">
+<div>
+<h2 class="text-3xl font-extrabold font-headline leading-tight">Warehouse Beats: Summer Solstice</h2>
+<p class="text-secondary font-bold flex items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+                                    TONIGHT • 8:00 PM
+                                </p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-3 rounded-xl">
+<span class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">Gate</span>
+<span class="font-headline font-bold text-lg">South 4</span>
+</div>
+<div class="bg-surface-container-low p-3 rounded-xl">
+<span class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">Zone</span>
+<span class="font-headline font-bold text-lg">VIP Deck</span>
+</div>
+</div>
+<button class="w-full bg-error text-white py-4 rounded-full font-bold flex items-center justify-center gap-3 shadow-lg shadow-error/20 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-weight="fill">emergency</span>
+                                EMERGENCY SOS
+                            </button>
+</div>
+</div>
+</div>
+<div class="space-y-6">
+<div class="flex justify-between items-end">
+<h3 class="text-2xl font-bold font-headline">Upcoming Journey</h3>
+<button class="text-primary font-bold text-sm hover:underline">View Calendar</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden group hover:shadow-xl transition-shadow duration-500">
+<div class="h-40 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Vibrant outdoor community festival with colorful banners and people dancing under string lights at dusk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCoX5CMGKuN2SF9fff2hp__iN2LGxooZ8PzOySzwCGqJS-QHqDoK_4CfO-mThMTbUIgpb71F2N8Y8ygft_dkC8ELqtmAeFjxptNvt-WBtQZHH2b-zSYbrStn3xL01dEjUK-7wI7cnPQ4aRW75F5cYN46ohTu5RzHO1kdDKxB9-4cMTwn_Ur88UwkngvSUqWAki5BIKQnNJNkBB4G5SUY8kS_6DYmgmN8jUhzRluwVaKT3rdeuP-TCfmyil0q24gT0Kc33iWPNhAys"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-4 left-4 text-white">
+<span class="text-[10px] font-bold uppercase tracking-widest">July 15, 2024</span>
+</div>
+</div>
+<div class="p-5 flex justify-between items-center">
+<div>
+<h4 class="font-headline font-bold text-lg">Local Artisans Market</h4>
+<p class="text-sm text-on-surface-variant">Greenwich Collective</p>
+</div>
+<button class="w-12 h-12 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">qr_code_2</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden group hover:shadow-xl transition-shadow duration-500">
+<div class="h-40 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Technological seminar stage with neon lighting and high-tech displays in a modern convention center" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOhPe0UNSo5RfXGF9bJOTNZ6irskMS9z5eMPKyehns3hZKwkSlLKi8ABnSzKY0RvwYwKnAQ04xKRI9IUk10FyvG2bcM_ohEleru0rMyQt46VQAZH6c2sG8ZBJe-t5c5C4LLkVOTPDUqOn_ptchQ4YZg8NyM4HUJlYR3JQc7zYpK_ZSbLZxjBlmZva7voMr9_Ap_6x2wLUB01XGAYYPRr2OdepYp8mVaiT9iz8XIKNVRyAOX-yUQvVSAxr0ix3ZArtxhOR7SqX3dmU"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-4 left-4 text-white">
+<span class="text-[10px] font-bold uppercase tracking-widest">Aug 02, 2024</span>
+</div>
+</div>
+<div class="p-5 flex justify-between items-center">
+<div>
+<h4 class="font-headline font-bold text-lg">AI &amp; Ethics Summit</h4>
+<p class="text-sm text-on-surface-variant">Central Hub Hall</p>
+</div>
+<button class="w-12 h-12 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">qr_code_2</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-2xl p-8">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-2xl font-bold font-headline">Green Impact</h3>
+<span class="bg-tertiary-container text-on-tertiary-container px-4 py-1 rounded-full text-xs font-bold">Level 4 Eco-Guardian</span>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+<div class="flex flex-col items-center gap-2 p-4 bg-surface-container-lowest rounded-xl text-center">
+<div class="w-12 h-12 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-tight">Cycle-to-Event</span>
+</div>
+<div class="flex flex-col items-center gap-2 p-4 bg-surface-container-lowest rounded-xl text-center">
+<div class="w-12 h-12 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-tight">Zero Waste Pro</span>
+</div>
+<div class="flex flex-col items-center gap-2 p-4 bg-surface-container-lowest rounded-xl text-center opacity-40 grayscale">
+<div class="w-12 h-12 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">directions_bus</span>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-tight">Transit Master</span>
+</div>
+<div class="flex flex-col items-center gap-2 p-4 bg-surface-container-lowest rounded-xl text-center">
+<div class="w-12 h-12 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">forest</span>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-tight">Tree Planter</span>
+</div>
+</div>
+</div>
+</section>
+<aside class="lg:col-span-4 space-y-8">
+<div class="bg-secondary-container text-on-secondary-container p-6 rounded-2xl">
+<h3 class="text-xl font-bold font-headline mb-4">Management Hub</h3>
+<nav class="space-y-3">
+<a class="flex items-center gap-3 p-3 bg-white/20 rounded-xl font-bold hover:bg-white/40 transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+                            Sync to Calendar
+                        </a>
+<a class="flex items-center gap-3 p-3 bg-white/20 rounded-xl font-bold hover:bg-white/40 transition-colors" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+                            Billing &amp; Receipts
+                        </a>
+<a class="flex items-center gap-3 p-3 bg-white/20 rounded-xl font-bold hover:bg-white/40 transition-colors" href="#">
+<span class="material-symbols-outlined">group_add</span>
+                            Transfer Tickets
+                        </a>
+<a class="flex items-center gap-3 p-3 bg-white/20 rounded-xl font-bold hover:bg-white/40 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+                            Entry Preferences
+                        </a>
+</nav>
+</div>
+<div class="bg-surface-container rounded-2xl p-6">
+<h3 class="text-xl font-bold font-headline mb-4">Past Memories</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-dim overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up of a jazz concert with a saxophone player in a moody dimly lit club" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVsyyURupIdXnL96KOJW0RDSW-BGuaMZNWAzcN-pfNW611286q1KJNOe3ggZUEQb3AsTuiWvaD9Nu9Nxqv1koWcy3zwoEXsxarHyqkdcGkr221nLfg26v_O7w8fYCTTnvNE_AiQNPg11GNOXcSHzfqpeKB6hvlm6ftbox8hQeM3HGat42n4-nhnwbcCSCdQ1BXE6k5FxGvusROAijsQ4q6ZqGpp2LrrpPgBH8yyP9KBCmWmbwpOOtYaZz9rbvD592xbQhZ68Zj_CY"/>
+</div>
+<div class="flex-grow">
+<p class="text-sm font-bold">Midnight Jazz Trio</p>
+<p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">May 12, 2024</p>
+</div>
+<span class="material-symbols-outlined text-tertiary">verified</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-dim overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="People at a modern art gallery opening with minimalist white walls and abstract paintings" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAi0nRveDAf2BCbhXEyhgGWavafRNQxyqSzjCGAgoZmUlzXr7mGIwbH9i_UwD3N9nZc_d_7pEgno9HI9Bt753GwOrr6oXU6H86eQBBfEpfcLUsYR3pYDjAeBZhbwTWB2EXbsdht1Qp2uHQ0NNiMaGdzQVF5hd3-XAdEdvEQnmcErB2gXks_2KpZBySYFZzJJhL9aweWQffcL5EjwFgq9KEgaNTuZCyPc99aV1Rv75jpoTPeD3wIXuOxXeOvWV6NPA7yZ2dfoc5fRRw"/>
+</div>
+<div class="flex-grow">
+<p class="text-sm font-bold">Modern Art Gala</p>
+<p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">April 28, 2024</p>
+</div>
+<span class="material-symbols-outlined text-tertiary">verified</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<footer class="bg-[#ffedeb] dark:bg-[#4e2120] text-[#4e2120] dark:text-[#fff4f3] w-full mt-auto py-12 px-8 flex flex-col md:flex-row justify-between items-center gap-6 font-['Manrope'] text-sm">
+<div class="text-xl font-bold text-[#ab2d00] font-headline">SpotOn</div>
+<div class="flex flex-wrap justify-center gap-6 opacity-70">
+<a class="hover:opacity-100 hover:text-[#4052b6] transition-opacity" href="#">Terms</a>
+<a class="hover:opacity-100 hover:text-[#4052b6] transition-opacity" href="#">Privacy</a>
+<a class="hover:opacity-100 hover:text-[#4052b6] transition-opacity" href="#">Safety Hub</a>
+<a class="hover:opacity-100 hover:text-[#4052b6] transition-opacity" href="#">Green Badges</a>
+<a class="hover:opacity-100 hover:text-[#4052b6] transition-opacity" href="#">Accessibility</a>
+</div>
+<p class="opacity-50 text-[10px] uppercase tracking-widest font-bold">© 2024 SpotOn Kinetic. Discover. Book. Belong.</p>
+</footer>
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 md:hidden bg-[#fff4f3]/90 dark:bg-[#4e2120]/95 backdrop-blur-xl shadow-[0_-8px_24px_rgba(78,33,32,0.08)] rounded-t-[1.5rem] z-50">
+<a class="flex flex-col items-center justify-center text-[#4e2120]/60 dark:text-[#fff4f3]/60 hover:bg-[#ffe1e0] dark:hover:bg-[#4e2120] rounded-xl px-4 py-2 transition-all" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#ffedeb] dark:bg-[#ff7851]/20 text-[#ab2d00] dark:text-[#ff7851] rounded-2xl px-4 py-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">confirmation_number</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Tickets</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#4e2120]/60 dark:text-[#fff4f3]/60 hover:bg-[#ffe1e0] dark:hover:bg-[#4e2120] rounded-xl px-4 py-2 transition-all" href="#">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Host</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#4e2120]/60 dark:text-[#fff4f3]/60 hover:bg-[#ffe1e0] dark:hover:bg-[#4e2120] rounded-xl px-4 py-2 transition-all" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#4e2120]/60 dark:text-[#fff4f3]/60 hover:bg-[#ffe1e0] dark:hover:bg-[#4e2120] rounded-xl px-4 py-2 transition-all" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

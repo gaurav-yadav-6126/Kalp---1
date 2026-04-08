@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-background": "#4e2120",
+                    "surface-variant": "#ffd2d0",
+                    "primary-container": "#ff7851",
+                    "outline-variant": "#e09c99",
+                    "secondary-container": "#c9cfff",
+                    "secondary": "#4052b6",
+                    "surface-container-high": "#ffdad8",
+                    "primary-dim": "#962700",
+                    "background": "#fff4f3",
+                    "surface-container-low": "#ffedeb",
+                    "surface-bright": "#fff4f3",
+                    "inverse-surface": "#240304",
+                    "on-surface": "#4e2120",
+                    "surface-container": "#ffe1e0",
+                    "on-tertiary-fixed-variant": "#00675d",
+                    "on-primary-fixed-variant": "#581300",
+                    "on-surface-variant": "#834c4b",
+                    "surface-dim": "#ffc7c4",
+                    "on-tertiary": "#c0fff4",
+                    "inverse-on-surface": "#ce8c89",
+                    "surface-container-highest": "#ffd2d0",
+                    "tertiary-container": "#85f6e5",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-container": "#2a3da1",
+                    "secondary-fixed-dim": "#b7c0ff",
+                    "on-tertiary-fixed": "#004841",
+                    "primary": "#ab2d00",
+                    "primary-fixed-dim": "#ff5d2b",
+                    "secondary-fixed": "#c9cfff",
+                    "on-error": "#ffefee",
+                    "tertiary-fixed": "#85f6e5",
+                    "error-container": "#fb5151",
+                    "on-secondary": "#f3f1ff",
+                    "on-secondary-fixed": "#10268d",
+                    "primary-fixed": "#ff7851",
+                    "on-primary-fixed": "#000000",
+                    "outline": "#a26765",
+                    "surface-tint": "#ab2d00",
+                    "surface": "#fff4f3",
+                    "tertiary": "#00675d",
+                    "tertiary-dim": "#005a51",
+                    "on-primary": "#ffefeb",
+                    "tertiary-fixed-dim": "#76e7d7",
+                    "on-secondary-fixed-variant": "#3447ab",
+                    "error-dim": "#9f0519",
+                    "on-tertiary-container": "#005c53",
+                    "secondary-dim": "#3346a9",
+                    "on-error-container": "#570008",
+                    "on-primary-container": "#470e00",
+                    "inverse-primary": "#ff5722",
+                    "error": "#b31b25"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-shadow {
+            box-shadow: 0 12px 32px rgba(78, 33, 32, 0.05);
+        }
+        .glass-nav {
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<nav class="bg-[#fff4f3]/80 dark:bg-[#4e2120]/90 backdrop-blur-md sticky top-0 z-50 shadow-[0_12px_32px_rgba(78,33,32,0.05)]">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-[#ab2d00] dark:text-[#ff7851] tracking-tighter">SpotOn</span>
+<div class="hidden md:flex gap-6 items-center font-['Plus_Jakarta_Sans'] font-bold text-sm tracking-tight">
+<a class="text-[#ab2d00] dark:text-[#ff7851] border-b-2 border-[#ab2d00] pb-1 hover:text-[#ab2d00] transition-colors duration-300" href="#">Discover</a>
+<a class="text-[#4e2120]/70 dark:text-[#fff4f3]/70 font-medium hover:text-[#ab2d00] transition-colors duration-300" href="#">Organize</a>
+<a class="text-[#4e2120]/70 dark:text-[#fff4f3]/70 font-medium hover:text-[#ab2d00] transition-colors duration-300" href="#">Community</a>
+<a class="text-[#4e2120]/70 dark:text-[#fff4f3]/70 font-medium hover:text-[#ab2d00] transition-colors duration-300" href="#">Impact</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#ab2d00] scale-95 active:opacity-80 transition-transform">notifications</button>
+<div class="h-10 w-10 rounded-full bg-surface-container overflow-hidden">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="Close-up portrait of a young professional woman with a friendly expression in soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC27bJCHmiRzTU8sNS8HrVAJOc4Ntc0H_1J2aKvuOkChNhUKbMlVV4eY-2PPrCdo9I13dI_kfm-3RHDAIDkgmNFUD8iBk3T999aeL7OoVpKq-03CP-RRya_M5fj4_p0OTQlGBF9GdzN7Obp8trCYPwZh2L1IzhLCddFTozzPhU9nlcasS7C-sOO5H29TCV48wXF6m3_vumxRio_K8cInmw-IhZjeGsPjZ6QwkAJDkWUS4QrinMFToM4kDdsRsShFBqIbo-wBvURI_E"/>
+</div>
+</div>
+</div>
+</nav>
+<main class="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 pb-32">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Media & Core Info -->
+<div class="lg:col-span-8 space-y-8">
+<!-- Hero Poster Section -->
+<section class="relative group overflow-hidden rounded-xl bg-surface-container-high shadow-xl">
+<img alt="Kinetic Pulse Festival" class="w-full h-[400px] md:h-[500px] object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Vibrant night concert scene with colorful spotlights, silhouettes of a cheering crowd, and energetic stage lighting in high-energy neighborhood atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRCrRyhHBrppqjZHYw-qVT9dl-EmzNIZZOgjzwBKRT_DLK0EERQmYBdZb08cnAKvPHdmJ0m4y9DxAGXfBlWN-TOWBIl3aZ9auOOvJYrVijBiu5V_fAsvTL7xEboZ8IuatIXt92q_GshiN1hmWDfQ82M-PFNcW69eGtkcaMXHoBI7ppl_jcX8bhq0ODk6CJVuVK_ee9dT4Ok0U_6Z0iecuiCS7VSHBi86UvNpaKVnu4dBErUnLDC7gi8s1z7-7gEtC_AbFnSLkxEWA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8 md:p-12">
+<div class="flex gap-3 mb-4">
+<span class="bg-tertiary text-on-tertiary px-4 py-1 rounded-full font-label text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">eco</span>
+                                Green Badge Certified
+                            </span>
+<span class="bg-primary-container text-on-primary-container px-4 py-1 rounded-full font-label text-[10px] font-bold uppercase tracking-widest">
+                                Trending Now
+                            </span>
+</div>
+<h1 class="font-headline text-4xl md:text-6xl text-white font-extrabold tracking-tighter mb-4">Kinetic Pulse: The District 7 Takeover</h1>
+<div class="flex flex-wrap gap-6 text-white/90 font-label text-sm">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container">calendar_today</span>
+                                Saturday, Oct 24 • 8:00 PM
+                            </span>
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container">location_on</span>
+                                The Warehouse Hub, D7
+                            </span>
+</div>
+</div>
+</section>
+<!-- Bento Grid: Details & Features -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Venue & Accessibility -->
+<div class="bg-surface-container-low rounded-xl p-8 editorial-shadow">
+<h3 class="font-headline text-xl font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">apartment</span>
+                            Venue &amp; Access
+                        </h3>
+<div class="space-y-4">
+<p class="text-on-surface-variant leading-relaxed">Modern industrial space optimized for acoustic clarity and inclusive movement.</p>
+<div class="flex flex-wrap gap-2 pt-2">
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs font-bold text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">accessible</span>
+                                    Wheelchair-friendly
+                                </div>
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs font-bold text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">hearing</span>
+                                    Assistive Listening
+                                </div>
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs font-bold text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">elevator</span>
+                                    Lift Access
+                                </div>
+</div>
+<div class="mt-6 rounded-xl overflow-hidden h-32 w-full">
+<img alt="Venue Map" class="w-full h-full object-cover grayscale opacity-60 hover:grayscale-0 transition-all duration-500" data-alt="Stylized map showing urban city block layout with venue highlighted in primary energetic orange color" data-location="District 7 Warehouse Hub" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqIU2INYd7ZZHZZbQMbtVzdZmdCVHwLgbcMYCJRr8rCV2NTJ0gIHdwH04b4eubcyUXaNId5Wq-_PMN-dJTj8OV8OettfSE2bKU9IdlYmXwNdWMIfvV9HeIhwBqi05JywwX5mtstSx9VEheV0zQHuU7uEXUSzX4EIRicSJoGFaR5ctGNGDbXxH9RC6j8caTNVKQJd1bH5lCwu7N33bWiZYY4wy4TSKcLYCL6ZuH1lqCs-XDeSTW0TRdfNJUkCwFqXfIV-tpDQ4VZQQ"/>
+</div>
+</div>
+</div>
+<!-- Sustainability / Green Badge -->
+<div class="bg-tertiary-container/30 rounded-xl p-8 editorial-shadow border border-tertiary/10">
+<div class="flex justify-between items-start mb-6">
+<h3 class="font-headline text-xl font-bold text-on-tertiary-container flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">energy_savings_leaf</span>
+                                Impact Metrics
+                            </h3>
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<ul class="space-y-4">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary text-sm mt-1">check_circle</span>
+<div>
+<span class="block font-bold text-sm text-on-tertiary-container">Zero-Waste Catering</span>
+<span class="text-xs text-on-tertiary-container/80 font-medium">All vendors use 100% compostable materials.</span>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary text-sm mt-1">check_circle</span>
+<div>
+<span class="block font-bold text-sm text-on-tertiary-container">Renewable Power</span>
+<span class="text-xs text-on-tertiary-container/80 font-medium">Stage lights powered by solar-battery array.</span>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary text-sm mt-1">check_circle</span>
+<div>
+<span class="block font-bold text-sm text-on-tertiary-container">Local Sourcing</span>
+<span class="text-xs text-on-tertiary-container/80 font-medium">90% of staff and goods sourced within 5 miles.</span>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<!-- Crowd Status & Safety -->
+<div class="bg-surface-container-highest rounded-xl p-8 editorial-shadow">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div>
+<h3 class="font-headline text-xl font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">groups</span>
+                                Live Pulse
+                            </h3>
+<div class="flex items-end gap-4">
+<div class="flex-1">
+<div class="h-4 w-full bg-surface-container rounded-full overflow-hidden mb-2">
+<div class="h-full bg-primary-container w-[72%]"></div>
+</div>
+<div class="flex justify-between text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant">
+<span>Comfortable</span>
+<span class="text-primary font-black">72% Capacity</span>
+<span>Packed</span>
+</div>
+</div>
+</div>
+<p class="mt-4 text-sm text-on-surface-variant italic leading-relaxed">
+                                "Spacious atmosphere tonight. No wait times at the main bar."
+                            </p>
+</div>
+<div class="bg-error-container/10 rounded-xl p-6 border border-error/5">
+<h3 class="font-headline text-lg font-bold text-error mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined">health_and_safety</span>
+                                Safety First
+                            </h3>
+<p class="text-xs text-on-surface-variant mb-4">Immediate assistance available via the SOS button in-app during the event.</p>
+<div class="flex flex-col gap-3">
+<div class="bg-white/60 p-3 rounded-lg flex items-center justify-between">
+<span class="text-xs font-bold">On-Site Medical Station</span>
+<span class="text-xs text-on-surface-variant">Zone B</span>
+</div>
+<div class="bg-white/60 p-3 rounded-lg flex items-center justify-between">
+<span class="text-xs font-bold">Safe-Walk Escorts</span>
+<button class="text-[10px] font-bold text-secondary uppercase tracking-tighter">Request</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Booking & Sharing -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Pricing & Booking Card -->
+<div class="sticky top-28 bg-surface-container-lowest rounded-xl p-8 editorial-shadow border-t-4 border-primary">
+<div class="mb-8">
+<h2 class="font-headline text-2xl font-black tracking-tight mb-2">Reserve Your Spot</h2>
+<p class="text-sm text-on-surface-variant">Prices will increase as the event approaches.</p>
+</div>
+<div class="space-y-4 mb-8">
+<!-- Pricing Tiers -->
+<div class="flex items-center justify-between p-4 rounded-xl border border-outline-variant/20 hover:border-primary-container transition-colors cursor-pointer group">
+<div>
+<span class="block font-bold text-on-surface">Early Bird</span>
+<span class="text-xs text-primary font-bold">Limited time remaining</span>
+</div>
+<div class="text-right">
+<span class="block font-headline text-xl font-bold text-primary">$45.00</span>
+<span class="text-[10px] font-label font-bold uppercase text-on-surface-variant">Per Guest</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 rounded-xl border border-primary-container bg-primary-container/5 cursor-pointer relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-primary-container text-on-primary-container px-3 py-1 text-[8px] font-black uppercase tracking-widest rounded-bl-lg">Best Value</div>
+<div>
+<span class="block font-bold text-on-surface">Group Discount</span>
+<span class="text-xs text-on-surface-variant">Min. 4 tickets</span>
+</div>
+<div class="text-right">
+<span class="block font-headline text-xl font-bold text-primary">$38.50</span>
+<span class="text-[10px] font-label font-bold uppercase text-on-surface-variant">Per Guest</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 rounded-xl border border-outline-variant/20 opacity-60 cursor-not-allowed">
+<div>
+<span class="block font-bold text-on-surface">Regular Admission</span>
+<span class="text-xs text-on-surface-variant">Opens Oct 15</span>
+</div>
+<div class="text-right">
+<span class="block font-headline text-xl font-bold text-on-surface-variant">$60.00</span>
+<span class="text-[10px] font-label font-bold uppercase text-on-surface-variant">Standard</span>
+</div>
+</div>
+</div>
+<!-- Book Button -->
+<button class="w-full bg-gradient-to-v from-primary to-primary-dim text-on-primary py-4 rounded-full font-headline font-bold text-lg shadow-lg active:scale-95 transition-transform mb-6">
+                        Book Now
+                    </button>
+<!-- SOS Preview -->
+<div class="flex items-center gap-3 p-4 bg-error-container/5 rounded-xl border border-error/10 mb-8">
+<div class="bg-error w-10 h-10 rounded-full flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined">sos</span>
+</div>
+<div>
+<span class="block font-bold text-xs text-error">Emergency Contact</span>
+<span class="text-xs font-medium text-on-surface-variant">+1 (800) 555-0199</span>
+</div>
+</div>
+<!-- Sharing -->
+<div class="pt-6 border-t border-outline-variant/10">
+<span class="block text-center text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant mb-4">Spread the Word</span>
+<div class="flex justify-center gap-4">
+<button class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center hover:bg-secondary-container transition-colors group">
+<span class="material-symbols-outlined text-secondary group-hover:scale-110 transition-transform">share</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center hover:bg-[#25D366]/20 transition-colors group">
+<span class="material-symbols-outlined text-[#128C7E] group-hover:scale-110 transition-transform">chat</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center hover:bg-[#E4405F]/20 transition-colors group">
+<span class="material-symbols-outlined text-[#E4405F] group-hover:scale-110 transition-transform">photo_camera</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 md:hidden bg-[#fff4f3]/90 dark:bg-[#4e2120]/95 backdrop-blur-xl z-50 rounded-t-[1.5rem] shadow-[0_-8px_24px_rgba(78,33,32,0.08)] border-t border-[#e09c99]/15">
+<a class="flex flex-col items-center justify-center text-[#4e2120]/60 dark:text-[#fff4f3]/60 hover:bg-[#ffe1e0] dark:hover:bg-[#4e2120] rounded-xl px-2 py-1" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#ffedeb] dark:bg-[#ff7851]/20 text-[#ab2d00] dark:text-[#ff7851] rounded-2xl px-4 py-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">confirmation_number</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Tickets</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#4e2120]/60 dark:text-[#fff4f3]/60 hover:bg-[#ffe1e0] dark:hover:bg-[#4e2120] rounded-xl px-2 py-1" href="#">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Host</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#4e2120]/60 dark:text-[#fff4f3]/60 hover:bg-[#ffe1e0] dark:hover:bg-[#4e2120] rounded-xl px-2 py-1" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#4e2120]/60 dark:text-[#fff4f3]/60 hover:bg-[#ffe1e0] dark:hover:bg-[#4e2120] rounded-xl px-2 py-1" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Profile</span>
+</a>
+</nav>
+<!-- Footer -->
+<footer class="w-full mt-auto bg-[#ffedeb] dark:bg-[#4e2120]">
+<div class="w-full py-12 px-8 flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto">
+<div class="flex flex-col items-center md:items-start gap-2">
+<span class="text-xl font-bold text-[#ab2d00]">SpotOn Kinetic</span>
+<p class="font-['Manrope'] text-sm text-[#4e2120] dark:text-[#fff4f3] opacity-70">© 2024 SpotOn Kinetic. Discover. Book. Belong.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-6 font-['Manrope'] text-sm text-[#4e2120] dark:text-[#fff4f3]">
+<a class="opacity-70 hover:opacity-100 hover:text-[#4052b6] transition-opacity" href="#">Terms</a>
+<a class="opacity-70 hover:opacity-100 hover:text-[#4052b6] transition-opacity" href="#">Privacy</a>
+<a class="opacity-70 hover:opacity-100 hover:text-[#4052b6] transition-opacity" href="#">Safety Hub</a>
+<a class="opacity-70 hover:opacity-100 hover:text-[#4052b6] transition-opacity" href="#">Green Badges</a>
+<a class="opacity-70 hover:opacity-100 hover:text-[#4052b6] transition-opacity" href="#">Accessibility</a>
+</div>
+</div>
+</footer>
+</body></html>

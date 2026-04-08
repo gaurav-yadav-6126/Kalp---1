@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-background": "#4e2120",
+                    "surface-variant": "#ffd2d0",
+                    "primary-container": "#ff7851",
+                    "outline-variant": "#e09c99",
+                    "secondary-container": "#c9cfff",
+                    "secondary": "#4052b6",
+                    "surface-container-high": "#ffdad8",
+                    "primary-dim": "#962700",
+                    "background": "#fff4f3",
+                    "surface-container-low": "#ffedeb",
+                    "surface-bright": "#fff4f3",
+                    "inverse-surface": "#240304",
+                    "on-surface": "#4e2120",
+                    "surface-container": "#ffe1e0",
+                    "on-tertiary-fixed-variant": "#00675d",
+                    "on-primary-fixed-variant": "#581300",
+                    "on-surface-variant": "#834c4b",
+                    "surface-dim": "#ffc7c4",
+                    "on-tertiary": "#c0fff4",
+                    "inverse-on-surface": "#ce8c89",
+                    "surface-container-highest": "#ffd2d0",
+                    "tertiary-container": "#85f6e5",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-container": "#2a3da1",
+                    "secondary-fixed-dim": "#b7c0ff",
+                    "on-tertiary-fixed": "#004841",
+                    "primary": "#ab2d00",
+                    "primary-fixed-dim": "#ff5d2b",
+                    "secondary-fixed": "#c9cfff",
+                    "on-error": "#ffefee",
+                    "tertiary-fixed": "#85f6e5",
+                    "error-container": "#fb5151",
+                    "on-secondary": "#f3f1ff",
+                    "on-secondary-fixed": "#10268d",
+                    "primary-fixed": "#ff7851",
+                    "on-primary-fixed": "#000000",
+                    "outline": "#a26765",
+                    "surface-tint": "#ab2d00",
+                    "surface": "#fff4f3",
+                    "tertiary": "#00675d",
+                    "tertiary-dim": "#005a51",
+                    "on-primary": "#ffefeb",
+                    "tertiary-fixed-dim": "#76e7d7",
+                    "on-secondary-fixed-variant": "#3447ab",
+                    "error-dim": "#9f0519",
+                    "on-tertiary-container": "#005c53",
+                    "secondary-dim": "#3346a9",
+                    "on-error-container": "#570008",
+                    "on-primary-container": "#470e00",
+                    "inverse-primary": "#ff5722",
+                    "error": "#b31b25"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .asymmetric-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 2rem;
+        }
+        @media (max-width: 768px) {
+            .asymmetric-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-[#fff4f3]/80 dark:bg-[#4e2120]/90 backdrop-blur-md docked full-width top-0 sticky z-50 shadow-[0_12px_32px_rgba(78,33,32,0.05)]">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-[#ab2d00] dark:text-[#ff7851] tracking-tighter font-headline">SpotOn</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-[#ab2d00] dark:text-[#ff7851] border-b-2 border-[#ab2d00] pb-1 font-['Plus_Jakarta_Sans'] font-bold text-sm tracking-tight transition-colors duration-300" href="#">Discover</a>
+<a class="text-[#4e2120]/70 dark:text-[#fff4f3]/70 font-medium font-['Plus_Jakarta_Sans'] text-sm tracking-tight hover:text-[#ab2d00] transition-colors duration-300" href="#">Organize</a>
+<a class="text-[#4e2120]/70 dark:text-[#fff4f3]/70 font-medium font-['Plus_Jakarta_Sans'] text-sm tracking-tight hover:text-[#ab2d00] transition-colors duration-300" href="#">Community</a>
+<a class="text-[#4e2120]/70 dark:text-[#fff4f3]/70 font-medium font-['Plus_Jakarta_Sans'] text-sm tracking-tight hover:text-[#ab2d00] transition-colors duration-300" href="#">Impact</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant/15">
+<span class="material-symbols-outlined text-on-surface-variant text-lg">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm font-medium w-48 placeholder:text-on-surface-variant/50" placeholder="Search nearby events..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant p-2 scale-95 active:opacity-80 transition-transform">notifications</button>
+<img alt="User profile avatar" class="w-10 h-10 rounded-full border-2 border-primary-container" data-alt="close-up portrait of a smiling young creative professional in a sunlit studio, warm natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAu0W96udc_d8Qn4FWRu8jMQyJXd475SWhZn5KzCNiaQLtuwRBVg1JPnX9Uq12QsZVHdYx7v9aDsLulW4vN6_OVGd8-v3E0NVbmBSr3IDSh6OL6ooQdg493f7ONOXwcjMgHbxEnCtGo26E89Hc1phOFoq8zvIM8SPb-OPzzePUc9fMz0CwuYukvG2rmS7JEAkIHrPzljcF3HrIq4ks2lBfgqlwKvxz20X26sngDWw_5zTdr8sfH03sAdfA8KMkNy4jMHCLTqk4sRjk"/>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto w-full px-8 pt-8 pb-24 md:pb-12">
+<!-- Hero Search & Categories -->
+<section class="mb-12">
+<h1 class="font-headline text-5xl md:text-6xl font-extrabold tracking-tight mb-8 leading-[1.1]">
+                The Kinetic <span class="text-primary italic">Pulse</span> <br/>of your City.
+            </h1>
+<div class="flex flex-wrap gap-3 mb-10">
+<button class="bg-primary text-on-primary px-6 py-3 rounded-full font-bold shadow-lg flex items-center gap-2 hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">festival</span> College Fests
+                </button>
+<button class="bg-secondary-container text-on-secondary-container px-6 py-3 rounded-full font-bold flex items-center gap-2 hover:bg-secondary-container/80 transition-colors">
+<span class="material-symbols-outlined">storefront</span> Pop-ups
+                </button>
+<button class="bg-tertiary-container text-on-tertiary-container px-6 py-3 rounded-full font-bold flex items-center gap-2 hover:bg-tertiary-container/80 transition-colors">
+<span class="material-symbols-outlined">groups</span> Community Gatherings
+                </button>
+<button class="bg-surface-container-high text-on-surface px-6 py-3 rounded-full font-bold flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">architecture</span> Workshops
+                </button>
+</div>
+</section>
+<div class="asymmetric-grid">
+<!-- Discover Weekly Content -->
+<section class="space-y-8">
+<div class="flex items-center justify-between">
+<h2 class="font-headline text-2xl font-bold">Discover Weekly</h2>
+<a class="text-primary font-bold text-sm uppercase tracking-widest flex items-center gap-1" href="#">View All <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+</div>
+<!-- Featured Recommendation (Asymmetric Spotlight) -->
+<div class="relative group overflow-hidden rounded-xl h-[400px] shadow-xl">
+<div class="absolute inset-0 bg-gradient-to-t from-on-background via-on-background/20 to-transparent z-10"></div>
+<img alt="Main discovery event" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="vibrant outdoor evening festival with string lights, silhouettes of people dancing, and glowing stage in the background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCB8xGDNJqryOwD2UYkbwp41X1BJmNpewPbxOqHWgBl71xWQw3Thj6nGXT3PhiJ8CzgPO5cZvh2dNQ6vXCB-28mnZGXcra5UIEMm2TTzj-ofG5whP3ach9B0LGjl8N4R3FpTkLSYpUEwBAZL40DuQ_6aLnwDcrWjeqOUA8cNzsWzQZqn3l-UIv4_rPTj0gWSOI2gxsKQRo2FWpaUv-7LYcp_giUVcSoDtJnS5V8J5_onPHc84ppFwSDAn8fnbgwUk4St0aMF-msito"/>
+<div class="absolute bottom-0 left-0 p-8 z-20 w-full">
+<div class="flex gap-2 mb-4">
+<span class="bg-tertiary text-on-tertiary text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest flex items-center gap-1">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">verified</span> Green Badge
+                            </span>
+<span class="bg-primary text-on-primary text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">Early Bird</span>
+</div>
+<h3 class="text-background font-headline text-3xl font-bold mb-2">Sonic Synthesis: Urban Beats 2024</h3>
+<p class="text-background/80 text-sm mb-4 max-w-md">Join 500+ local creators for the biggest audio-visual experience of the summer. Exclusive sets from neighborhood legends.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="flex -space-x-3">
+<img alt="friend 1" class="w-8 h-8 rounded-full border-2 border-on-background" data-alt="close-up headshot of a person" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdBy0YVwfeErfjbt8t8YPp5JYioNFtjyLuDcxuIn25bGyqX0CsPLwM5JsBCX_NCyLYcVJd7DzavLHOUoPr3S-Rr9kWpA3rBl3oZWPReudW36Ycewg1paSQZIDapgtSugXSrbfgfcKTRpf3K77GDk3EByOMoSGXwi99j4Ucl-dz4Ij3iq4sxuwDvsW-jSG-EgGb9hbN7bsBLmcb0zDVjMvnQIjwY5azd70am-AQ8A1PIXmOLGJ1BW_zAxbfBXz8lJ_zSqZRQ15Q-XA"/>
+<img alt="friend 2" class="w-8 h-8 rounded-full border-2 border-on-background" data-alt="close-up headshot of a person" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC--lzoC7fj_1P3DHHDDmD6etnAm7ml2R7zXQm12dDQEZuiFu95DerjBwCSgUz1Uhbo0fgxvdRYdRJLHBCc2CS60BbxAIPNJ--TPOLU2jma0RlNkne9Q0K-hz0ow3JhCOESn_EryPmWpEMua2S6R_vuQD_nYocT8aHxO4PMVxdfF5T01oKmPmFe4vy9SXwDNp8b3pm2MxXpvBGqVo0eagwDe-aVhuvADVdktTQ40bZ5igM-LEKXn3NYprRTuBuqQGGcugEodhZqBco"/>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-[10px] font-bold text-on-secondary-container border-2 border-on-background">+12</div>
+</div>
+<span class="text-background/90 text-xs font-bold uppercase tracking-tight">Friends attending</span>
+</div>
+<button class="bg-primary-container text-on-primary-container px-6 py-2 rounded-full font-bold">Claim Space</button>
+</div>
+</div>
+</div>
+<!-- Grid of smaller cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 shadow-sm group hover:shadow-lg transition-shadow">
+<div class="relative overflow-hidden rounded-lg h-40 mb-4">
+<img alt="event card" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="people networking at a bright, minimalist modern workshop space with large windows and plants" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdhRc1GrJtgzYFc5uYm7szXDre8WHc7f4AQBMWyUEcbh1Zl7CKrLtUmpPfCE-M118OnPIPVQwtSlyT8grF4uRFjqiX8XTs5IA81_QZD-xme1xY8WtA4IWubdzaOSTN6G6tgE9Q-HfJxfV3UNeCpfTgIUDF_kbC2JGl8gKEr6-qqBaWHnYjJA6yFhKg4C2fH4et8OBm8CvWWFmiTllNarGdn1DrXzbBZOIEQgcjT5Ffe8wBXu5M7WEDaDKQOZ3VV5Cg7Ka5GWj9AKQ"/>
+<div class="absolute top-2 right-2 bg-surface-container-low/90 backdrop-blur-sm p-1.5 rounded-full">
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+</div>
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-headline font-bold text-lg leading-tight">Founder's Coffee Meetup</h4>
+<span class="text-primary font-black text-sm">$0</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant text-xs mb-4">
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_month</span> June 12</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> Brew &amp; Co.</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-surface-container text-on-surface-variant text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">accessible</span> Wheelchair-friendly
+                            </span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 shadow-sm group hover:shadow-lg transition-shadow">
+<div class="relative overflow-hidden rounded-lg h-40 mb-4">
+<img alt="event card 2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="indie band performing on a small stage with warm orange lighting and intimate crowd" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIdwQdD4cn5OeTzMwU2MhwZzoCknrRhmU9NdFpxE3HhJ5nCmeqwYOkfE0AGB0Hw-E0jr4kdA5FZS9XXi4pcGlve5g43R-v1JyC4I5oxIXWI_9lELoiMxfqHQaqTnhIf_tUJqhI9x6NTiaus86D9-Y_qxdyEF7EjAvmsQVTXXym5m2H_1NHyTi65-NQhvu4c1I1K9Exec_1R8dfbIcZY2AhF5hbfI7E8IERkx6C98u5CYd-7ErfYeFYYQjjFak2uD6TAYf9XlhY7c0"/>
+<div class="absolute top-2 left-2">
+<span class="bg-tertiary text-on-tertiary text-[10px] font-bold px-2 py-1 rounded shadow-sm">SPOTLIGHT</span>
+</div>
+</div>
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-headline font-bold text-lg leading-tight">Summer Solstice Jazz</h4>
+<span class="text-primary font-black text-sm">$15</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant text-xs mb-4">
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_month</span> June 15</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> Park Theater</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex -space-x-2">
+<img alt="friend" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" data-alt="headshot of a woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwf7KJFYKJLXq6TOI3lNAnhmQ_9O0jYV3b-1dvlHXxo6N3dhHcvKKdQXZW2hlbOi_8uDVFTnFhT7ZoXr87asonLrxYJqiRxdjqpb4mO6N_434dktudYIkE4FB0FgqmOykVq_kRHbEk2Y17OWaY7NIxcOOcTxy1KG64KmhFHbJb1UyLdpRE2inheGlatGRW4Z56nQvhgLZ2ZrSQvaieDHzq3NqUOsRZXhYq1BRXLi22pC4gCIqJlfROyca1VxJwasHpEfU1lV6JFPw"/>
+<img alt="friend" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" data-alt="headshot of a man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDq_CNVTuBLb3oQs91kMXwRwCTWnPJ8DxUFgmuStdoPmPWOnIfPHqGtbCpuew9BBl7JG7LnhX08eZoutz0CaPZEdBCXs_LQRDWMOr-Qf-qJwYGCYrS73vgTOmC6Al5vhxApG7VnLx6AKjfXOGmewtkv1KnSU8mWIW5LEfiojScvR9gOcbxTDjZEztSGPcIklJ_YAfwCPorcfn20WPw591YTCdBtz_6MrxPVP5EKcLoxN5wfmmZRlmiLCjjNc2aptdoM-vfdZYb-rP0"/>
+</div>
+<span class="text-[10px] text-tertiary font-bold px-2 py-0.5 border border-tertiary/30 rounded uppercase tracking-widest">Verified Venue</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Sidebar Filters & Context -->
+<aside class="space-y-8">
+<!-- Location Heatmap Card -->
+<div class="bg-surface-container rounded-xl p-6 relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="font-headline font-bold text-xl mb-4">Nearby Now</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-3 bg-surface-container-lowest p-3 rounded-lg">
+<span class="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-full">near_me</span>
+<div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Active Zone</p>
+<p class="font-bold text-sm">Brooklyn Arts District</p>
+</div>
+</div>
+<div class="h-32 rounded-lg bg-surface-dim overflow-hidden shadow-inner grayscale opacity-60">
+<img alt="Map snapshot" class="w-full h-full object-cover" data-location="Brooklyn" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-iOsNTAxp6Xvxbq1hDsvIMxKg7RKMbBFKin8v_AbuRPDYXz51mZdsHx00s0UCDKPMytz4VOY_S-TNb_67kUUQTGxdQqN0mUkOLszP80-yd0ZuiGNFqPsYctRhjR0yUyhC3d9SQ6vphMmdVLNc95EwHl6GUX4mDXJHazs_dIfQO4-n0_A4ApLNQDcXTOwsTvNyV_FbAHcXO0qfjiZ17UMIaySWdtDK7edwxXx5veqn8jBKxEM3pY-nRzTxNpsHQ3uAVXx7-qny0z4"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Professional Filters -->
+<div class="bg-surface-container-low rounded-xl p-6">
+<h3 class="font-headline font-bold text-lg mb-6">Refine Search</h3>
+<div class="space-y-6">
+<!-- Filter Group -->
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">Price Point</label>
+<div class="grid grid-cols-2 gap-2">
+<button class="bg-primary text-on-primary py-2 rounded-lg text-xs font-bold">Early Bird</button>
+<button class="bg-surface-container-lowest text-on-surface py-2 rounded-lg text-xs font-bold border border-outline-variant/20 hover:bg-surface-container-high transition-colors">Standard</button>
+</div>
+</div>
+<!-- Filter Group -->
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">Accessibility</label>
+<div class="space-y-2">
+<label class="flex items-center justify-between p-3 rounded-lg bg-surface-container-lowest border border-outline-variant/10 cursor-pointer hover:border-primary/30 transition-colors">
+<span class="flex items-center gap-2 text-sm font-bold">
+<span class="material-symbols-outlined text-sm">accessible</span> Wheelchair-friendly
+                                    </span>
+<input checked="" class="rounded text-primary focus:ring-primary w-4 h-4" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between p-3 rounded-lg bg-surface-container-lowest border border-outline-variant/10 cursor-pointer hover:border-primary/30 transition-colors">
+<span class="flex items-center gap-2 text-sm font-bold">
+<span class="material-symbols-outlined text-sm">closed_caption</span> Live Captioning
+                                    </span>
+<input class="rounded text-primary focus:ring-primary w-4 h-4" type="checkbox"/>
+</label>
+</div>
+</div>
+<button class="w-full bg-secondary text-on-secondary py-3 rounded-full font-bold shadow-md hover:shadow-lg transition-all active:scale-95">Update Results</button>
+</div>
+</div>
+<!-- Green Badge Stats -->
+<div class="bg-[#00675d] text-on-tertiary rounded-xl p-6 shadow-xl">
+<div class="flex items-start justify-between mb-6">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">eco</span>
+<div class="text-right">
+<p class="text-3xl font-black font-headline">84%</p>
+<p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Sustainable Events</p>
+</div>
+</div>
+<p class="text-sm font-medium leading-relaxed opacity-90">SpotOn partners with organizers who prioritize low-impact gatherings. Look for the Green Badge to earn community tokens.</p>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-[#ffedeb] dark:bg-[#4e2120] w-full mt-auto tonal-shift no-lines shadow-none">
+<div class="w-full py-12 px-8 flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto">
+<span class="text-xl font-bold text-[#ab2d00] font-headline">SpotOn</span>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="font-['Manrope'] text-sm text-[#4e2120] dark:text-[#fff4f3] opacity-70 hover:opacity-100 hover:text-[#4052b6] transition-all" href="#">Terms</a>
+<a class="font-['Manrope'] text-sm text-[#4e2120] dark:text-[#fff4f3] opacity-70 hover:opacity-100 hover:text-[#4052b6] transition-all" href="#">Privacy</a>
+<a class="font-['Manrope'] text-sm text-[#4e2120] dark:text-[#fff4f3] opacity-70 hover:opacity-100 hover:text-[#4052b6] transition-all" href="#">Safety Hub</a>
+<a class="font-['Manrope'] text-sm text-[#4e2120] dark:text-[#fff4f3] opacity-70 hover:opacity-100 hover:text-[#4052b6] transition-all" href="#">Green Badges</a>
+<a class="font-['Manrope'] text-sm text-[#4e2120] dark:text-[#fff4f3] opacity-70 hover:opacity-100 hover:text-[#4052b6] transition-all" href="#">Accessibility</a>
+</div>
+<p class="font-['Manrope'] text-sm text-[#4e2120] dark:text-[#fff4f3] opacity-70">© 2024 SpotOn Kinetic. Discover. Book. Belong.</p>
+</div>
+</footer>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 md:hidden bg-[#fff4f3]/90 dark:bg-[#4e2120]/95 backdrop-blur-xl z-50 rounded-t-[1.5rem] shadow-[0_-8px_24px_rgba(78,33,32,0.08)] border-t border-[#e09c99]/15">
+<div class="flex flex-col items-center justify-center bg-[#ffedeb] dark:bg-[#ff7851]/20 text-[#ab2d00] dark:text-[#ff7851] rounded-2xl px-4 py-2">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Explore</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#4e2120]/60 dark:text-[#fff4f3]/60 hover:bg-[#ffe1e0] dark:hover:bg-[#4e2120] rounded-xl px-4 py-2 transition-all">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Tickets</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#4e2120]/60 dark:text-[#fff4f3]/60 hover:bg-[#ffe1e0] dark:hover:bg-[#4e2120] rounded-xl px-4 py-2 transition-all">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Host</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#4e2120]/60 dark:text-[#fff4f3]/60 hover:bg-[#ffe1e0] dark:hover:bg-[#4e2120] rounded-xl px-4 py-2 transition-all">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Saved</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#4e2120]/60 dark:text-[#fff4f3]/60 hover:bg-[#ffe1e0] dark:hover:bg-[#4e2120] rounded-xl px-4 py-2 transition-all">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Manrope'] text-[10px] font-bold uppercase tracking-widest mt-1">Profile</span>
+</div>
+</nav>
+<!-- FAB (Suppressed on details, shown here for Home/Discovery) -->
+<button class="fixed right-6 bottom-24 md:bottom-12 bg-primary text-on-primary w-14 h-14 rounded-full flex items-center justify-center shadow-2xl z-40 active:scale-90 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 600;">map</span>
+</button>
+</body></html>

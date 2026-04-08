@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System user profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["user", "organizer", "admin"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "email", "role"]
+    },
+    "Event": {
+      "title": "Event",
+      "description": "College or local event details",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "venue": { "type": "string" },
+        "category": { "type": "string" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "totalSeats": { "type": "number" },
+        "availableSeats": { "type": "number" },
+        "organizerId": { "type": "string" },
+        "organizerName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "date", "venue", "totalSeats", "availableSeats", "organizerId"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Event ticket booking",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "eventId": { "type": "string" },
+        "eventTitle": { "type": "string" },
+        "eventDate": { "type": "string" },
+        "numberOfTickets": { "type": "number" },
+        "totalPrice": { "type": "number" },
+        "qrCodeData": { "type": "string" },
+        "status": { "type": "string", "enum": ["booked", "used", "cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "eventId", "numberOfTickets", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/events/{eventId}": {
+      "schema": "Event",
+      "description": "Event listings"
+    },
+    "/bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Ticket bookings"
+    }
+  }
+}

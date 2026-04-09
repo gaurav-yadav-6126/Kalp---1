@@ -194,20 +194,6 @@ const AppContent: React.FC = () => {
         </Routes>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-surface-container-low w-full mt-auto">
-        <div className="w-full py-12 px-8 flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto">
-          <span className="text-xl font-bold text-primary font-headline">Eventify</span>
-          <div className="flex flex-wrap justify-center gap-8">
-            <a className="text-sm text-on-background opacity-70 hover:opacity-100 hover:text-secondary transition-all" href="#">Terms</a>
-            <a className="text-sm text-on-background opacity-70 hover:opacity-100 hover:text-secondary transition-all" href="#">Privacy</a>
-            <a className="text-sm text-on-background opacity-70 hover:opacity-100 hover:text-secondary transition-all" href="#">Safety Hub</a>
-            <a className="text-sm text-on-background opacity-70 hover:opacity-100 hover:text-secondary transition-all" href="#">Green Badges</a>
-          </div>
-          <p className="text-sm text-on-background opacity-70">© 2024 Eventify Kinetic. Discover. Book. Belong.</p>
-        </div>
-      </footer>
-
       {/* BottomNavBar (Mobile Only) */}
       <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 md:hidden bg-background/90 backdrop-blur-xl z-50 rounded-t-[1.5rem] shadow-[0_-8px_24px_rgba(78,33,32,0.08)] border-t border-outline-variant/15">
         {navLinks.map((link) => (

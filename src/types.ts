@@ -3,6 +3,7 @@ export interface UserProfile {
   name: string;
   email: string;
   role: 'user' | 'organizer' | 'admin';
+  city?: string;
   createdAt: any; // Firestore Timestamp
 }
 
@@ -11,7 +12,9 @@ export interface Event {
   title: string;
   description: string;
   date: any; // Firestore Timestamp
+  bookingCloseTime?: any; // Firestore Timestamp
   venue: string;
+  city: string;
   category: string;
   imageUrl: string;
   totalSeats: number;

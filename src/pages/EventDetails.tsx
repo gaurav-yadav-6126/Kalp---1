@@ -19,6 +19,12 @@ const EventDetails: React.FC = () => {
   const [attendeeEmail, setAttendeeEmail] = useState('');
   const [isBooking, setIsBooking] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -148,6 +154,24 @@ const EventDetails: React.FC = () => {
   const isEarlyBirdActive = event.hasEarlyBird && ticketsSold < earlyBirdCapacity;
   const earlyBirdTicketsLeft = Math.max(0, earlyBirdCapacity - ticketsSold);
 
+  let timeRemaining = null;
+  let isBookingClosed = false;
+  let showTimer = false;
+
+  if (event.bookingCloseTime) {
+    const closeTime = event.bookingCloseTime.toDate().getTime();
+    timeRemaining = closeTime - currentTime.getTime();
+    isBookingClosed = timeRemaining <= 0;
+    showTimer = timeRemaining > 0 && timeRemaining <= 20 * 60 * 1000; // 20 minutes
+  }
+
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
   return (
     <main className="max-w-5xl mx-auto px-4 md:px-8 py-8 md:py-12 pb-32">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -171,7 +195,7 @@ const EventDetails: React.FC = () => {
               </span>
               <span className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">location_on</span>
-                {event.venue}
+                {event.venue}, {event.city}
               </span>
             </div>
 
@@ -188,7 +212,7 @@ const EventDetails: React.FC = () => {
             <div className="mb-8">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="font-headline text-2xl font-black tracking-tight">Reserve Your Spot</h2>
-                {isEarlyBirdActive && (
+                {isEarlyBirdActive && !isBookingClosed && (
                   <span className="bg-primary text-on-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest animate-pulse">
                     Early Bird Active
                   </span>
@@ -198,7 +222,24 @@ const EventDetails: React.FC = () => {
                 {event.availableSeats} seats remaining
               </p>
               
-              {isEarlyBirdActive && (
+              {showTimer && !isBookingClosed && (
+                <div className="bg-error/10 border border-error/20 p-4 rounded-xl flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2 text-error">
+                    <span className="material-symbols-outlined animate-pulse">timer</span>
+                    <span className="text-sm font-bold">Bookings close in:</span>
+                  </div>
+                  <span className="text-xl font-mono font-black text-error">{formatTime(timeRemaining!)}</span>
+                </div>
+              )}
+
+              {isBookingClosed && (
+                <div className="bg-surface-container-high border border-outline-variant/20 p-4 rounded-xl flex items-center gap-3 mb-4">
+                  <span className="material-symbols-outlined text-on-surface-variant">event_busy</span>
+                  <span className="text-sm font-bold text-on-surface">Bookings are now closed for this event.</span>
+                </div>
+              )}
+              
+              {isEarlyBirdActive && !isBookingClosed && (
                 <div className="bg-primary-container/30 border border-primary/20 p-4 rounded-xl flex items-start gap-3">
                   <span className="material-symbols-outlined text-primary mt-0.5">local_activity</span>
                   <div>
@@ -276,10 +317,18 @@ const EventDetails: React.FC = () => {
             {/* Book Button */}
             <button 
               onClick={handleBooking}
-              disabled={isBooking || event.availableSeats === 0}
-              className="w-full bg-primary text-on-primary py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isBooking || event.availableSeats === 0 || isBookingClosed}
+              className="w-full bg-primary text-on-primary py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {isBooking ? 'Processing...' : event.availableSeats === 0 ? 'Sold Out' : 'Book Tickets'}
+              {isBooking ? (
+                <><span className="material-symbols-outlined animate-spin">progress_activity</span> Processing...</>
+              ) : isBookingClosed ? (
+                'Bookings Closed'
+              ) : event.availableSeats === 0 ? (
+                'Sold Out'
+              ) : (
+                'Book Tickets'
+              )}
             </button>
           </div>
         </div>

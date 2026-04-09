@@ -146,7 +146,7 @@ const BookingDetails: React.FC = () => {
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-1">Total Paid</p>
-                <p className="font-bold text-primary">${booking.totalPrice.toFixed(2)}</p>
+                <p className="font-bold text-primary">₹{booking.totalPrice.toFixed(2)}</p>
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-1">Status</p>

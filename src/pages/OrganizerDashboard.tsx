@@ -101,7 +101,7 @@ const OrganizerDashboard: React.FC = () => {
           </Link>
           <Link 
             to="/create-event"
-            className="bg-gradient-to-v from-primary to-primary-dim text-on-primary px-8 py-4 rounded-full font-bold flex items-center gap-3 shadow-lg hover:scale-[1.02] active:scale-95 transition-all"
+            className="bg-primary text-on-primary px-8 py-4 rounded-full font-bold flex items-center gap-3 shadow-lg hover:scale-[1.02] active:scale-95 transition-all"
           >
             <span className="material-symbols-outlined">add_circle</span>
             Create New Event

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
-import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { db, auth, handleFirestoreError, OperationType } from '../firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
+import { X, Info } from 'lucide-react';
 
 const Scanner: React.FC = () => {
   const { user, profile, isAuthReady } = useAuth();
@@ -22,7 +23,7 @@ const Scanner: React.FC = () => {
     }
 
     // Redirect if not an organizer
-    const isOrganizer = profile?.email === 'gy426408@gmail.com' || profile?.role === 'admin';
+    const isOrganizer = profile?.email === 'gy426408@gmail.com' || profile?.role === 'admin' || profile?.role === 'organizer';
     if (!isOrganizer) {
       navigate('/');
       toast.error('Access denied. Organizer privileges required.');
@@ -31,7 +32,11 @@ const Scanner: React.FC = () => {
 
     const scanner = new Html5QrcodeScanner(
       "reader",
-      { fps: 10, qrbox: { width: 250, height: 250 } },
+      { 
+        fps: 10, 
+        aspectRatio: 1.0,
+        showTorchButtonIfSupported: true
+      },
       /* verbose= */ false
     );
 
@@ -69,22 +74,10 @@ const Scanner: React.FC = () => {
             } catch (error) {
               handleFirestoreError(error, OperationType.UPDATE, `bookings/${bookingId}`);
             }
-            setScanResult({ 
-              status: 'success', 
-              message: 'Ticket Validated!',
-              details: {
-                event: bookingData.eventTitle,
-                guests: bookingData.ticketCount,
-                attendee: bookingData.attendeeName,
-                email: bookingData.attendeeEmail
-              }
-            });
             toast.success('Ticket Validated Successfully!');
             
-            // Navigate to the booking details page after a longer delay so they can read the name
-            setTimeout(() => {
-              navigate(`/booking/${bookingId}`);
-            }, 4000);
+            // Navigate instantly
+            navigate(`/booking/${bookingId}`);
           }
         } else {
           setScanResult({ status: 'error', message: 'Invalid Ticket QR Code' });
@@ -92,13 +85,11 @@ const Scanner: React.FC = () => {
         }
       } catch (error) {
         console.error('Scan error:', error);
-        if (error instanceof Error && error.message.includes('Firestore Error')) {
-          // Already handled
-        } else {
-          toast.error('Error validating ticket');
-        }
+        toast.error('Error validating ticket');
       } finally {
-        isProcessingRef.current = false;
+        setTimeout(() => {
+          isProcessingRef.current = false;
+        }, 2500);
       }
     }
 
@@ -111,84 +102,119 @@ const Scanner: React.FC = () => {
     };
   }, [user, isAuthReady, navigate, profile]);
 
-  if (!user) return <div className="p-8 text-center">Please sign in to access the scanner.</div>;
+  if (!user) return null;
 
   return (
-    <main className="max-w-3xl mx-auto px-6 py-12">
-      <header className="mb-10 flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-black font-headline tracking-tighter text-on-surface mb-2">Ticket Scanner</h1>
-          <p className="text-on-surface-variant font-medium">Validate entry passes in real-time.</p>
-        </div>
-        <button 
-          onClick={() => navigate('/dashboard')}
-          className="p-3 bg-surface-container rounded-full hover:bg-surface-container-high transition-colors"
-        >
-          <span className="material-symbols-outlined">close</span>
-        </button>
-      </header>
+    <main className="min-h-[80vh] bg-background flex flex-col items-center py-8 px-4">
+      <div className="w-full max-w-md">
+        <header className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-black font-headline tracking-tighter text-on-surface">Scan Ticket</h1>
+            <p className="text-on-surface-variant text-sm font-medium mt-1">Point camera at the QR code</p>
+          </div>
+          <button 
+            onClick={() => navigate('/dashboard')}
+            className="w-10 h-10 bg-surface-container rounded-full flex items-center justify-center hover:bg-surface-container-high transition-colors text-on-surface"
+          >
+            <X size={20} />
+          </button>
+        </header>
 
-      <div className="bg-surface-container-lowest rounded-[2.5rem] p-8 shadow-xl border border-outline-variant/10 overflow-hidden">
-        <div id="reader" className="rounded-2xl overflow-hidden border-4 border-surface-container-low"></div>
+        <div className="bg-surface-container-lowest rounded-[2rem] shadow-2xl border border-outline-variant/10 overflow-hidden relative">
+          {/* Scanner Viewfinder */}
+          <div className="relative bg-surface-container-lowest w-full overflow-hidden flex flex-col items-center justify-center">
+            <div id="reader" className="w-full h-full [&>div]:border-none [&_video]:object-cover"></div>
+            
+            {/* Overlay UI for the scanner (only visible when camera is active, but we'll just put it over the video area if possible. Actually html5-qrcode handles its own UI. Let's just use CSS to style it.) */}
+          </div>
 
-        <AnimatePresence mode="wait">
-          {scanResult && (
-            <motion.div 
-              key={scanResult.status + scanResult.message}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className={cn(
-                "mt-8 p-6 rounded-2xl border-2 flex items-start gap-4",
-                scanResult.status === 'success' 
-                  ? "bg-tertiary-container/10 border-tertiary/20 text-on-tertiary-container" 
-                  : "bg-error-container/10 border-error/20 text-error"
-              )}
-            >
-              <span className="material-symbols-outlined text-3xl">
-                {scanResult.status === 'success' ? 'check_circle' : 'error'}
-              </span>
-              <div className="flex-grow">
-                <h3 className="font-bold text-lg">{scanResult.message}</h3>
-                {scanResult.details && (
-                  <div className="mt-4 space-y-3">
-                    <div className="bg-surface-container-lowest/60 p-4 rounded-xl border border-outline-variant/10">
-                      <p className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">Attendee Info</p>
-                      <p className="text-2xl font-black">{scanResult.details.attendee}</p>
-                      <p className="text-sm font-medium opacity-80">{scanResult.details.email}</p>
-                    </div>
-                    <div className="text-sm opacity-80 space-y-1 px-1">
-                      <p><strong>Event:</strong> {scanResult.details.event}</p>
-                      <p><strong>Guests:</strong> {scanResult.details.guests}</p>
-                    </div>
-                    <p className="text-xs font-bold opacity-60 mt-4 animate-pulse">Navigating to details...</p>
+          <div className="p-6 bg-surface-container-lowest border-t border-outline-variant/10">
+            <AnimatePresence mode="wait">
+              {scanResult && scanResult.status === 'error' ? (
+                <motion.div 
+                  key="error"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="bg-error-container/20 border border-error/30 p-4 rounded-xl flex items-start gap-3 text-error"
+                >
+                  <span className="material-symbols-outlined mt-0.5">error</span>
+                  <div>
+                    <h3 className="font-bold">{scanResult.message}</h3>
+                    <button 
+                      onClick={() => setScanResult(null)}
+                      className="mt-2 text-xs font-bold uppercase tracking-widest underline opacity-80 hover:opacity-100"
+                    >
+                      Scan Another
+                    </button>
                   </div>
-                )}
-                {scanResult.status === 'error' && (
-                  <button 
-                    onClick={() => setScanResult(null)}
-                    className="mt-4 text-xs font-black uppercase tracking-widest underline"
-                  >
-                    Scan Next Ticket
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div className="mt-8 bg-surface-container-low p-6 rounded-2xl">
-          <h3 className="font-bold flex items-center gap-2 mb-2">
-            <span className="material-symbols-outlined text-secondary">info</span>
-            How to scan
-          </h3>
-          <ul className="text-sm text-on-surface-variant space-y-2">
-            <li>• Position the QR code within the camera frame</li>
-            <li>• Ensure there is enough lighting</li>
-            <li>• Once validated, the ticket will be marked as "Used"</li>
-          </ul>
+                </motion.div>
+              ) : (
+                <motion.div 
+                  key="info"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-start gap-3 text-on-surface-variant text-sm"
+                >
+                  <Info size={20} className="text-primary shrink-0 mt-0.5" />
+                  <p>Hold your device steady. The scanner will automatically detect and validate the ticket.</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
+
+      {/* Global styles to override html5-qrcode default ugly UI */}
+      <style>{`
+        #reader {
+          border: none !important;
+          width: 100% !important;
+          position: relative;
+        }
+        #reader__scan_region {
+          min-height: 300px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #000;
+        }
+        #reader__dashboard_section_csr span {
+          font-family: inherit !important;
+        }
+        #reader__dashboard_section_swaplink {
+          color: var(--color-primary) !important;
+          text-decoration: none !important;
+          font-weight: bold !important;
+        }
+        #reader button {
+          background-color: var(--color-primary) !important;
+          color: var(--color-on-primary) !important;
+          border: none !important;
+          padding: 8px 16px !important;
+          border-radius: 99px !important;
+          font-weight: bold !important;
+          cursor: pointer !important;
+          margin: 8px !important;
+        }
+        #reader select {
+          padding: 8px !important;
+          border-radius: 8px !important;
+          margin-bottom: 8px !important;
+          max-width: 100%;
+          background: var(--color-surface-container-low);
+          border: 1px solid rgba(0,0,0,0.1);
+        }
+        #reader__dashboard {
+          padding: 16px !important;
+        }
+        #reader__dashboard_section_csr {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+        }
+      `}</style>
     </main>
   );
 };

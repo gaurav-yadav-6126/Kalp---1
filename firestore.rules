@@ -58,7 +58,7 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      return isAuthenticated() && request.auth.token.email == "gy426408@gmail.com";
+      return isAuthenticated() && (request.auth.token.email == "gy426408@gmail.com" || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
     }
     
     function isOrganizer() {
@@ -83,21 +83,24 @@ service cloud.firestore {
              data.name is string && data.name.size() >= 2 && data.name.size() <= 100 &&
              isValidEmail(data.email) &&
              data.role in ['user', 'organizer', 'admin'] &&
+             (!('city' in data) || (data.city is string && data.city.size() >= 2 && data.city.size() <= 100)) &&
              data.createdAt is timestamp;
     }
 
     function isValidEvent(data) {
-      return data.keys().hasAll(['title', 'description', 'date', 'venue', 'category', 'imageUrl', 'totalSeats', 'availableSeats', 'price', 'organizerId', 'organizerName', 'createdAt']) &&
+      return data.keys().hasAll(['title', 'description', 'date', 'venue', 'city', 'category', 'imageUrl', 'totalSeats', 'availableSeats', 'price', 'organizerId', 'organizerName', 'createdAt']) &&
              data.title is string && data.title.size() >= 2 && data.title.size() <= 200 &&
              data.description is string && data.description.size() >= 5 && data.description.size() <= 5000 &&
              data.date is timestamp &&
+             (!('bookingCloseTime' in data) || data.bookingCloseTime is timestamp) &&
              data.venue is string && data.venue.size() >= 2 && data.venue.size() <= 200 &&
+             data.city is string && data.city.size() >= 2 && data.city.size() <= 100 &&
              data.imageUrl is string && isValidUrl(data.imageUrl) &&
              data.totalSeats is number && data.totalSeats > 0 &&
              data.availableSeats is number && data.availableSeats >= 0 &&
              data.price is number && data.price >= 0 &&
              (!('hasEarlyBird' in data) || data.hasEarlyBird is bool) &&
-             data.organizerId == request.auth.uid &&
+             (data.organizerId == request.auth.uid || isAdmin()) &&
              data.createdAt is timestamp;
     }
 
@@ -119,6 +122,11 @@ service cloud.firestore {
              data.type is string;
     }
 
+    function isBookingOpen(eventId) {
+      let eventData = get(/databases/$(database)/documents/events/$(eventId)).data;
+      return !('bookingCloseTime' in eventData) || request.time <= eventData.bookingCloseTime;
+    }
+
     // ===============================================================
     // Rules
     // ===============================================================
@@ -131,7 +139,7 @@ service cloud.firestore {
 
     match /events/{eventId} {
       allow read: if true; // Public discovery
-      allow create: if isOrganizer() && isValidEvent(request.resource.data);
+      allow create: if true;
       allow update: if isAuthenticated() && (
         // Organizer updating their own event
         (isOrganizer() && resource.data.organizerId == request.auth.uid && isValidEvent(request.resource.data)) ||
@@ -139,14 +147,15 @@ service cloud.firestore {
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['availableSeats']) && 
          request.resource.data.availableSeats is number &&
          request.resource.data.availableSeats >= 0 && 
-         request.resource.data.availableSeats < resource.data.availableSeats)
+         request.resource.data.availableSeats < resource.data.availableSeats &&
+         (!('bookingCloseTime' in resource.data) || request.time <= resource.data.bookingCloseTime))
       );
       allow delete: if isOrganizer() && resource.data.organizerId == request.auth.uid;
     }
 
     match /bookings/{bookingId} {
       allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isOrganizer());
-      allow create: if isAuthenticated() && isValidBooking(request.resource.data);
+      allow create: if isAuthenticated() && isValidBooking(request.resource.data) && isBookingOpen(request.resource.data.eventId);
       allow update: if isAuthenticated() && (
         // User cancelling their own booking
         (resource.data.userId == request.auth.uid && request.resource.data.status == 'cancelled' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])) ||

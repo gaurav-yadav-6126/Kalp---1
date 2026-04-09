@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { collection, addDoc, doc, updateDoc, getDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc, getDoc, serverTimestamp, Timestamp, deleteField } from 'firebase/firestore';
 import { db, auth, handleFirestoreError, OperationType } from '../firebase';
 import { toast } from 'sonner';
 import { useNavigate, useParams } from 'react-router-dom';
+import { INDIAN_CITIES, CITY_COLLEGES } from '../constants';
 
 export default function CreateEvent() {
   const { user, profile, isAuthReady } = useAuth();
@@ -16,7 +17,10 @@ export default function CreateEvent() {
     description: '',
     date: '',
     time: '',
+    bookingCloseDate: '',
+    bookingCloseTime: '',
     venue: '',
+    city: '',
     category: 'Music',
     totalSeats: 100,
     price: 0,
@@ -47,12 +51,16 @@ export default function CreateEvent() {
         if (eventDoc.exists()) {
           const data = eventDoc.data();
           const date = data.date.toDate();
+          const closeDate = data.bookingCloseTime ? data.bookingCloseTime.toDate() : null;
           setFormData({
             title: data.title,
             description: data.description,
             date: date.toISOString().split('T')[0],
             time: date.toTimeString().split(' ')[0].substring(0, 5),
+            bookingCloseDate: closeDate ? closeDate.toISOString().split('T')[0] : '',
+            bookingCloseTime: closeDate ? closeDate.toTimeString().split(' ')[0].substring(0, 5) : '',
             venue: data.venue,
+            city: data.city || '',
             category: data.category,
             totalSeats: data.totalSeats,
             price: data.price || 0,
@@ -72,31 +80,44 @@ export default function CreateEvent() {
     setLoading(true);
     try {
       const eventDate = new Date(`${formData.date}T${formData.time}`);
-      const eventData = {
+      const closeDate = formData.bookingCloseDate && formData.bookingCloseTime 
+        ? new Date(`${formData.bookingCloseDate}T${formData.bookingCloseTime}`) 
+        : null;
+        
+      const eventData: any = {
         title: formData.title,
         description: formData.description,
         date: Timestamp.fromDate(eventDate),
         venue: formData.venue,
+        city: formData.city,
         category: formData.category,
         totalSeats: Number(formData.totalSeats),
-        availableSeats: Number(formData.totalSeats),
         price: Number(formData.price),
         hasEarlyBird: formData.hasEarlyBird,
         imageUrl: formData.imageUrl || `https://picsum.photos/seed/${formData.title}/800/600`,
         organizerId: user.uid,
         organizerName: user.displayName || 'Anonymous',
-        createdAt: serverTimestamp()
+        bookingCloseTime: closeDate ? Timestamp.fromDate(closeDate) : deleteField()
       };
 
       if (eventId) {
         try {
-          await updateDoc(doc(db, 'events', eventId), eventData);
+          const eventRef = doc(db, 'events', eventId);
+          const eventSnap = await getDoc(eventRef);
+          if (eventSnap.exists()) {
+            const oldData = eventSnap.data();
+            const seatDiff = Number(formData.totalSeats) - oldData.totalSeats;
+            eventData.availableSeats = Math.max(0, oldData.availableSeats + seatDiff);
+          }
+          await updateDoc(eventRef, eventData);
         } catch (error) {
           handleFirestoreError(error, OperationType.UPDATE, `events/${eventId}`);
         }
         toast.success('Event updated successfully!');
       } else {
         try {
+          eventData.availableSeats = Number(formData.totalSeats);
+          eventData.createdAt = serverTimestamp();
           await addDoc(collection(db, 'events'), eventData);
         } catch (error) {
           handleFirestoreError(error, OperationType.CREATE, 'events');
@@ -180,18 +201,75 @@ export default function CreateEvent() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Venue / Location</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">location_on</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Booking Close Date (Optional)</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">event_busy</span>
+                <input 
+                  type="date" 
+                  value={formData.bookingCloseDate}
+                  onChange={(e) => setFormData({...formData, bookingCloseDate: e.target.value})}
+                  className="w-full pl-12 pr-6 py-4 bg-surface-container-low border border-outline-variant/15 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary transition-all font-medium"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Booking Close Time (Optional)</label>
               <input 
-                required
-                type="text" 
-                placeholder="e.g. Main Auditorium, Block C"
-                value={formData.venue}
-                onChange={(e) => setFormData({...formData, venue: e.target.value})}
-                className="w-full pl-12 pr-6 py-4 bg-surface-container-low border border-outline-variant/15 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary transition-all font-medium"
+                type="time" 
+                value={formData.bookingCloseTime}
+                onChange={(e) => setFormData({...formData, bookingCloseTime: e.target.value})}
+                className="w-full px-6 py-4 bg-surface-container-low border border-outline-variant/15 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary transition-all font-medium"
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">City</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">location_city</span>
+                <select 
+                  required
+                  value={formData.city}
+                  onChange={(e) => setFormData({...formData, city: e.target.value, venue: ''})}
+                  className="w-full pl-12 pr-6 py-4 bg-surface-container-low border border-outline-variant/15 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary transition-all font-medium appearance-none"
+                >
+                  <option value="">Select a city</option>
+                  {INDIAN_CITIES.map(city => (
+                    <option key={city} value={city}>{city}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Venue / Location</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">location_on</span>
+                {formData.city && CITY_COLLEGES[formData.city] ? (
+                  <select
+                    required
+                    value={formData.venue}
+                    onChange={(e) => setFormData({...formData, venue: e.target.value})}
+                    className="w-full pl-12 pr-6 py-4 bg-surface-container-low border border-outline-variant/15 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary transition-all font-medium appearance-none"
+                  >
+                    <option value="">Select a venue</option>
+                    {CITY_COLLEGES[formData.city].map(college => (
+                      <option key={college} value={college}>{college}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input 
+                    required
+                    type="text" 
+                    placeholder="e.g. Main Auditorium, Block C"
+                    value={formData.venue}
+                    onChange={(e) => setFormData({...formData, venue: e.target.value})}
+                    className="w-full pl-12 pr-6 py-4 bg-surface-container-low border border-outline-variant/15 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary transition-all font-medium"
+                  />
+                )}
+              </div>
             </div>
           </div>
 
@@ -280,7 +358,7 @@ export default function CreateEvent() {
             <button 
               type="submit"
               disabled={loading}
-              className="flex-[2] py-4 bg-gradient-to-v from-primary to-primary-dim text-on-primary font-bold rounded-2xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="flex-[2] py-4 bg-primary text-on-primary font-bold rounded-2xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? <span className="material-symbols-outlined animate-spin">progress_activity</span> : (eventId ? 'Update Event' : 'Launch Event')}
             </button>

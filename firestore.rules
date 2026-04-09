@@ -127,6 +127,14 @@ service cloud.firestore {
              data.type is string;
     }
 
+    function isValidSearchLog(data) {
+      return data.keys().hasAll(['term', 'count', 'lastSearched']) &&
+             data.term is string && data.term.size() >= 2 && data.term.size() <= 100 &&
+             data.count is number &&
+             data.lastSearched is timestamp &&
+             (!('suggestionSent' in data) || data.suggestionSent is bool);
+    }
+
     function isBookingOpen(eventId) {
       let eventData = get(/databases/$(database)/documents/events/$(eventId)).data;
       return !('bookingCloseTime' in eventData) || request.time <= eventData.bookingCloseTime;
@@ -171,6 +179,7 @@ service cloud.firestore {
         // Organizer marking ticket as used
         (isOrganizer() && request.resource.data.status == 'used' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
       );
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isOrganizer());
     }
 
     match /notifications/{notificationId} {
@@ -178,6 +187,17 @@ service cloud.firestore {
       allow create: if isAuthenticated() && isValidNotification(request.resource.data);
       allow update: if isAuthenticated() && resource.data.userId == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
       allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    match /search_logs/{logId} {
+      allow read: if true;
+      allow create: if isValidSearchLog(request.resource.data);
+      allow update: if (
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count', 'lastSearched']) &&
+         request.resource.data.count == resource.data.count + 1) ||
+        (isOrganizer() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['suggestionSent'])) ||
+        isAdmin()
+      );
     }
   }
 }

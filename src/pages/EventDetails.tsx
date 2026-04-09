@@ -63,7 +63,7 @@ const EventDetails: React.FC = () => {
       return;
     }
 
-    const selectedTicket = event.ticketTypes.find(t => t.id === selectedTicketId);
+    const selectedTicket = (event.ticketTypes || []).find(t => t.id === selectedTicketId);
     if (!selectedTicket || !selectedTicket.enabled) {
       toast.error('Selected ticket type is not available');
       return;
@@ -81,7 +81,7 @@ const EventDetails: React.FC = () => {
 
     setIsBooking(true);
     try {
-      await runTransaction(db, async (transaction) => {
+      const result = await runTransaction(db, async (transaction) => {
         const eventRef = doc(db, 'events', id);
         let eventDoc;
         try {
@@ -94,8 +94,9 @@ const EventDetails: React.FC = () => {
         if (!eventDoc.exists()) throw new Error('Event does not exist');
         
         const eventData = eventDoc.data() as Event;
-        const currentTicketIndex = eventData.ticketTypes.findIndex(t => t.id === selectedTicketId);
-        const currentTicket = eventData.ticketTypes[currentTicketIndex];
+        const ticketTypes = eventData.ticketTypes || [];
+        const currentTicketIndex = ticketTypes.findIndex(t => t.id === selectedTicketId);
+        const currentTicket = ticketTypes[currentTicketIndex];
 
         if (!currentTicket || !currentTicket.enabled) throw new Error('Ticket tier is disabled');
         if ((currentTicket.available ?? 0) < ticketCount) throw new Error('Not enough tickets in this tier');
@@ -128,7 +129,7 @@ const EventDetails: React.FC = () => {
         };
 
         // Update ticket types array with new availability
-        const updatedTicketTypes = [...eventData.ticketTypes];
+        const updatedTicketTypes = [...ticketTypes];
         updatedTicketTypes[currentTicketIndex] = {
           ...currentTicket,
           available: (currentTicket.available ?? 0) - ticketCount
@@ -141,7 +142,31 @@ const EventDetails: React.FC = () => {
           soldCount: (eventData.soldCount || 0) + ticketCount,
           ticketTypes: updatedTicketTypes
         });
+
+        // Return booking data for email
+        return {
+          bookingId: bookingRef.id,
+          attendeeEmail,
+          attendeeName,
+          eventTitle: event.title,
+          eventDate: event.date.toDate().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' at ' + event.date.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          ticketTypeName: selectedTicket.name,
+          ticketCount,
+          totalPrice
+        };
       });
+
+      // Send confirmation email via backend
+      try {
+        await fetch('/api/send-ticket', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(result)
+        });
+      } catch (emailError) {
+        console.error('Failed to send confirmation email:', emailError);
+        // Don't fail the whole booking if email fails, but log it
+      }
 
       toast.success('Tickets booked successfully!');
       setShowSuccessAnimation(true);

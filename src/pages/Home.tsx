@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Search, MapPin, Calendar, ArrowRight, Star, Verified } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { toast } from 'sonner';
+import { logSearch } from '../services/searchTrendService';
 import { INDIAN_CITIES } from '../constants';
 
 const EventCard = React.memo<{ event: Event; currentTime: Date }>(({ event, currentTime }) => {
@@ -33,8 +34,9 @@ const EventCard = React.memo<{ event: Event; currentTime: Date }>(({ event, curr
     <Link 
       to={isClosed ? '#' : `/event/${event.id}`}
       className={cn(
-        "bg-surface-container-lowest rounded-xl p-4 shadow-sm group hover:shadow-lg transition-all duration-300 flex flex-col h-full",
-        isClosed && "opacity-75 grayscale-[0.5] cursor-default"
+        "bg-surface-container-lowest rounded-xl p-4 shadow-sm group hover:shadow-lg transition-all duration-300 flex flex-col h-full relative",
+        isClosed && "opacity-75 grayscale-[0.5] cursor-default",
+        showTimer && !isClosed && "ring-2 ring-error ring-offset-2"
       )}
       onClick={(e) => isClosed && e.preventDefault()}
     >
@@ -46,8 +48,14 @@ const EventCard = React.memo<{ event: Event; currentTime: Date }>(({ event, curr
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
         {showTimer && (
-          <div className="absolute top-2 left-2 bg-error text-on-error text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-lg animate-pulse">
-            <span className="material-symbols-outlined text-[14px]">timer</span> {formatTime(timeRemaining!)}
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start z-10">
+            <div className="bg-error text-on-error text-[11px] font-black px-3 py-1.5 rounded-full flex items-center gap-2 shadow-xl animate-pulse border border-white/20">
+              <span className="material-symbols-outlined text-[16px]">timer</span> 
+              <span>{formatTime(timeRemaining!)}</span>
+            </div>
+            <div className="bg-error/90 backdrop-blur-md text-on-error text-[9px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest shadow-lg border border-white/10">
+              Closing Soon!
+            </div>
           </div>
         )}
         <div className="absolute bottom-2 right-2 bg-background/90 backdrop-blur px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest">
@@ -104,6 +112,17 @@ const Home: React.FC = () => {
   const [showCityPrompt, setShowCityPrompt] = useState(false);
   const [promptCityInput, setPromptCityInput] = useState('');
   const eventsGridRef = React.useRef<HTMLDivElement>(null);
+
+  // Debounced search logging
+  useEffect(() => {
+    if (!searchTerm || searchTerm.trim().length < 3) return;
+    
+    const timer = setTimeout(() => {
+      logSearch(searchTerm);
+    }, 2000); // 2 second debounce
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const categories = [
     { name: 'All', icon: 'apps' },

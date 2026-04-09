@@ -18,6 +18,12 @@ const OrganizerDashboard: React.FC = () => {
   const [selectedEventForAttendees, setSelectedEventForAttendees] = useState<Event | null>(null);
   const [showAttendeeModal, setShowAttendeeModal] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 10000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (!isAuthReady) return;
@@ -153,22 +159,57 @@ const OrganizerDashboard: React.FC = () => {
             const ticketsSold = eventBookings.reduce((acc, b) => acc + b.ticketCount, 0);
             const revenue = eventBookings.reduce((acc, b) => acc + b.totalPrice, 0);
             const capacityPercentage = Math.round((ticketsSold / event.totalSeats) * 100) || 0;
+            
+            const closeTime = event.bookingCloseTime?.toDate().getTime();
+            const timeRemaining = closeTime ? closeTime - currentTime.getTime() : null;
+            const showTimer = timeRemaining !== null && timeRemaining > 0 && timeRemaining <= 20 * 60 * 1000;
+            const isClosed = closeTime ? closeTime < currentTime.getTime() : false;
+
+            const formatTime = (ms: number) => {
+              const totalSeconds = Math.floor(ms / 1000);
+              const minutes = Math.floor(totalSeconds / 60);
+              const seconds = totalSeconds % 60;
+              return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            };
 
             return (
-              <div key={event.id} className="bg-surface-container-lowest p-6 rounded-[1.5rem] flex flex-col lg:flex-row lg:items-center gap-8 shadow-sm group border border-outline-variant/10 hover:shadow-md transition-shadow">
+              <div key={event.id} className={cn(
+                "bg-surface-container-lowest p-6 rounded-[1.5rem] flex flex-col lg:flex-row lg:items-center gap-8 shadow-sm group border border-outline-variant/10 hover:shadow-md transition-shadow relative",
+                showTimer && "ring-2 ring-error ring-offset-2"
+              )}>
                 <div className="w-full lg:w-48 h-32 rounded-xl overflow-hidden shrink-0 relative">
                   <img src={event.imageUrl} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute top-2 left-2 bg-background/90 backdrop-blur px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest">
                     {event.category}
                   </div>
+                  {showTimer && (
+                    <div className="absolute inset-0 bg-error/20 flex items-center justify-center">
+                      <div className="bg-error text-on-error text-[10px] font-black px-2 py-1 rounded-full animate-pulse flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[12px]">timer</span>
+                        {formatTime(timeRemaining!)}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex-grow">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="material-symbols-outlined text-sm text-primary">calendar_month</span>
-                    <span className="text-sm font-bold text-on-surface-variant">
-                      {event.date.toDate().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
-                    </span>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm text-primary">calendar_month</span>
+                      <span className="text-sm font-bold text-on-surface-variant">
+                        {event.date.toDate().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                      </span>
+                    </div>
+                    {showTimer && (
+                      <span className="bg-error/10 text-error text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest animate-pulse">
+                        Closing Soon
+                      </span>
+                    )}
+                    {isClosed && (
+                      <span className="bg-surface-container-high text-on-surface-variant text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest">
+                        Closed
+                      </span>
+                    )}
                   </div>
                   <h4 className="text-2xl font-bold font-headline mb-1">{event.title}</h4>
                   <div className="flex items-center gap-2 text-sm text-on-surface-variant">

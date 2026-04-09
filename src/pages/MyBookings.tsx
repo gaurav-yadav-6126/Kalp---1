@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { Booking } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Calendar, MapPin, Ticket, QrCode, ArrowRight, Info, AlertCircle } from 'lucide-react';
+import { Calendar, MapPin, Ticket, QrCode, ArrowRight, Info, AlertCircle, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
@@ -16,6 +16,8 @@ const MyBookings: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [bookingToDelete, setBookingToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -40,17 +42,20 @@ const MyBookings: React.FC = () => {
     return () => unsubscribe();
   }, [user]);
 
-  if (!user) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
-        <div className="w-20 h-20 bg-surface-container rounded-full flex items-center justify-center text-on-surface-variant mb-6">
-          <Ticket size={40} />
-        </div>
-        <h2 className="text-2xl font-bold mb-2">Sign in to view your tickets</h2>
-        <p className="text-on-surface-variant max-w-xs">Your event journey starts here. Sign in to manage your bookings and entry passes.</p>
-      </div>
-    );
-  }
+  const handleDeleteBooking = async () => {
+    if (!bookingToDelete) return;
+    setIsDeleting(true);
+    try {
+      await deleteDoc(doc(db, 'bookings', bookingToDelete));
+      toast.success('Booking deleted successfully');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `bookings/${bookingToDelete}`);
+      toast.error('Failed to delete booking');
+    } finally {
+      setBookingToDelete(null);
+      setIsDeleting(false);
+    }
+  };
 
   const pastBookings = React.useMemo(() => bookings.filter(b => b.status === 'used' || b.status === 'cancelled'), [bookings]);
   const upcomingBookings = React.useMemo(() => bookings.filter(b => b.status === 'confirmed'), [bookings]);
@@ -64,6 +69,18 @@ const MyBookings: React.FC = () => {
       days: Array.from({ length: daysInMonth }, (_, i) => i + 1)
     };
   }, [currentMonth]);
+
+  if (!user) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
+        <div className="w-20 h-20 bg-surface-container rounded-full flex items-center justify-center text-on-surface-variant mb-6">
+          <Ticket size={40} />
+        </div>
+        <h2 className="text-2xl font-bold mb-2">Sign in to view your tickets</h2>
+        <p className="text-on-surface-variant max-w-xs">Your event journey starts here. Sign in to manage your bookings and entry passes.</p>
+      </div>
+    );
+  }
 
   return (
     <main className="flex-grow max-w-7xl mx-auto w-full px-6 py-8 pb-32">
@@ -107,6 +124,12 @@ const MyBookings: React.FC = () => {
                         <Link to={`/booking/${booking.id}`} className="text-xs font-bold uppercase tracking-widest text-primary hover:underline flex items-center gap-1 w-fit">
                           View Details <ArrowRight size={14} />
                         </Link>
+                        <button 
+                          onClick={() => setBookingToDelete(booking.id)}
+                          className="text-xs font-bold uppercase tracking-widest text-error hover:underline flex items-center gap-1 w-fit mt-2"
+                        >
+                          Delete Ticket <Trash2 size={14} />
+                        </button>
                       </div>
                     </div>
                     <div className="p-6 bg-surface-container-low/30 flex flex-col items-center justify-center shrink-0 sm:w-48 relative">
@@ -149,12 +172,21 @@ const MyBookings: React.FC = () => {
                         {booking.eventDate.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </p>
                     </div>
-                    <span className={cn(
-                      "material-symbols-outlined",
-                      booking.status === 'used' ? "text-tertiary" : "text-error"
-                    )}>
-                      {booking.status === 'used' ? 'verified' : 'cancel'}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={cn(
+                        "material-symbols-outlined",
+                        booking.status === 'used' ? "text-tertiary" : "text-error"
+                      )}>
+                        {booking.status === 'used' ? 'verified' : 'cancel'}
+                      </span>
+                      <button 
+                        onClick={() => setBookingToDelete(booking.id)}
+                        className="p-1.5 rounded-full hover:bg-error/10 text-on-surface-variant hover:text-error transition-colors"
+                        title="Delete Memory"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (
@@ -255,6 +287,49 @@ const MyBookings: React.FC = () => {
                   className="bg-primary text-on-primary px-8 py-3 rounded-full font-bold shadow-lg hover:shadow-xl transition-all active:scale-95"
                 >
                   Close Calendar
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {bookingToDelete && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-surface-container-lowest p-8 rounded-[2rem] shadow-2xl max-w-md w-full border border-outline-variant/10"
+            >
+              <div className="w-16 h-16 bg-error-container rounded-full flex items-center justify-center mb-6 text-error">
+                <Trash2 size={32} />
+              </div>
+              <h3 className="text-2xl font-bold font-headline mb-2">Delete Booking?</h3>
+              <p className="text-on-surface-variant mb-8 leading-relaxed">
+                Are you sure you want to delete this booking? This action cannot be undone and you will lose access to this ticket.
+              </p>
+              <div className="flex justify-end gap-4">
+                <button 
+                  onClick={() => setBookingToDelete(null)}
+                  className="px-6 py-3 rounded-full font-bold text-on-surface-variant hover:bg-surface-container-low transition-colors"
+                  disabled={isDeleting}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleDeleteBooking}
+                  className="px-6 py-3 rounded-full font-bold bg-error text-white hover:bg-error/90 transition-colors shadow-lg shadow-error/20 flex items-center gap-2"
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+                  ) : (
+                    <Trash2 size={18} />
+                  )}
+                  Delete Booking
                 </button>
               </div>
             </motion.div>

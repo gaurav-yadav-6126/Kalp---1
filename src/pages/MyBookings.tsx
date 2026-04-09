@@ -52,8 +52,18 @@ const MyBookings: React.FC = () => {
     );
   }
 
-  const pastBookings = bookings.filter(b => b.status === 'used' || b.status === 'cancelled');
-  const upcomingBookings = bookings.filter(b => b.status === 'confirmed');
+  const pastBookings = React.useMemo(() => bookings.filter(b => b.status === 'used' || b.status === 'cancelled'), [bookings]);
+  const upcomingBookings = React.useMemo(() => bookings.filter(b => b.status === 'confirmed'), [bookings]);
+
+  const calendarDays = React.useMemo(() => {
+    const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
+    const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+    
+    return {
+      emptyDays: Array.from({ length: firstDayOfMonth }),
+      days: Array.from({ length: daysInMonth }, (_, i) => i + 1)
+    };
+  }, [currentMonth]);
 
   return (
     <main className="flex-grow max-w-7xl mx-auto w-full px-6 py-8 pb-32">
@@ -89,7 +99,9 @@ const MyBookings: React.FC = () => {
                           {booking.eventDate.toDate().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • {booking.eventDate.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         <h4 className="font-headline font-extrabold text-xl line-clamp-2 mb-1">{booking.eventTitle}</h4>
-                        <p className="text-sm text-on-surface-variant font-medium">{booking.ticketCount} Guest{booking.ticketCount > 1 ? 's' : ''}</p>
+                        <p className="text-sm text-on-surface-variant font-medium">
+                          {booking.ticketTypeName || 'Standard'} • {booking.ticketCount} Guest{booking.ticketCount > 1 ? 's' : ''}
+                        </p>
                       </div>
                       <div className="mt-6">
                         <Link to={`/booking/${booking.id}`} className="text-xs font-bold uppercase tracking-widest text-primary hover:underline flex items-center gap-1 w-fit">
@@ -198,11 +210,10 @@ const MyBookings: React.FC = () => {
                   ))}
                 </div>
                 <div className="grid grid-cols-7 gap-2">
-                  {Array.from({ length: new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay() }).map((_, i) => (
+                  {calendarDays.emptyDays.map((_, i) => (
                     <div key={`empty-${i}`} className="min-h-[80px] p-2 bg-surface-container-lowest/50 rounded-xl"></div>
                   ))}
-                  {Array.from({ length: new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate() }).map((_, i) => {
-                    const day = i + 1;
+                  {calendarDays.days.map((day) => {
                     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
                     const isToday = new Date().toDateString() === date.toDateString();
                     const dayBookings = bookings.filter(b => b.eventDate.toDate().toDateString() === date.toDateString());

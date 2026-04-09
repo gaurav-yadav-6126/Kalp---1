@@ -70,16 +70,16 @@ const OrganizerDashboard: React.FC = () => {
     }
   };
 
-  const stats = {
+  const stats = React.useMemo(() => ({
     totalEvents: events.length,
     totalTicketsSold: bookings.filter(b => events.some(e => e.id === b.eventId)).reduce((acc, b) => acc + b.ticketCount, 0),
     totalRevenue: bookings.filter(b => events.some(e => e.id === b.eventId)).reduce((acc, b) => acc + b.totalPrice, 0),
     uniqueAttendees: new Set(bookings.filter(b => events.some(e => e.id === b.eventId)).map(b => b.userId)).size
-  };
+  }), [events, bookings]);
 
   const featuredEvent = events[0];
-  const featuredEventBookings = featuredEvent ? bookings.filter(b => b.eventId === featuredEvent.id) : [];
-  const capacityPercentage = featuredEvent ? Math.round(((featuredEvent.totalSeats - featuredEvent.availableSeats) / featuredEvent.totalSeats) * 100) : 0;
+  const featuredEventBookings = React.useMemo(() => featuredEvent ? bookings.filter(b => b.eventId === featuredEvent.id) : [], [featuredEvent, bookings]);
+  const capacityPercentage = React.useMemo(() => featuredEvent ? Math.round(((featuredEvent.totalSeats - featuredEvent.availableSeats) / featuredEvent.totalSeats) * 100) : 0, [featuredEvent]);
 
   if (!user) return <div className="p-8 text-center">Please sign in to access the dashboard.</div>;
 
@@ -280,7 +280,8 @@ const OrganizerDashboard: React.FC = () => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold">{booking.ticketCount} Tickets</p>
+                          <p className="font-bold">{booking.ticketTypeName || 'Standard'}</p>
+                          <p className="text-sm font-medium text-on-surface-variant">{booking.ticketCount} Tickets</p>
                           <p className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">
                             {booking.createdAt?.toDate().toLocaleDateString()}
                           </p>

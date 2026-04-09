@@ -74,6 +74,15 @@
   gap: 2rem;
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 @media (max-width: 768px) {
   .asymmetric-grid {
     grid-template-columns: 1fr;

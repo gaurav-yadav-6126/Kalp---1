@@ -11,6 +11,7 @@ import OrganizerDashboard from './pages/OrganizerDashboard';
 import CreateEvent from './pages/CreateEvent';
 import Scanner from './pages/Scanner';
 import BookingDetails from './pages/BookingDetails';
+import Auth from './pages/Auth';
 import { LogOut } from 'lucide-react';
 import { cn } from './lib/utils';
 
@@ -45,7 +46,7 @@ const AppContent: React.FC = () => {
     return () => unsubscribe();
   }, [user]);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = React.useMemo(() => notifications.filter(n => !n.read).length, [notifications]);
 
   const markAsRead = async (notificationId: string) => {
     try {
@@ -57,30 +58,33 @@ const AppContent: React.FC = () => {
 
   const isOrganizer = profile?.email === 'gy426408@gmail.com' || profile?.role === 'admin' || profile?.role === 'organizer';
 
-  const navLinks = [
+  const navLinks = React.useMemo(() => [
     { name: 'Discover', path: '/', icon: 'explore' },
     { name: 'Tickets', path: '/my-bookings', icon: 'confirmation_number' },
     ...(isOrganizer ? [{ name: 'Host', path: '/dashboard', icon: 'add_circle' }] : []),
-  ];
+  ], [isOrganizer]);
 
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-on-background font-body">
+    <div className="min-h-screen flex flex-col bg-background text-on-background font-body selection:bg-primary/30">
       {/* TopNavBar */}
-      <header className="bg-background/80 backdrop-blur-md sticky top-0 z-50 shadow-[0_12px_32px_rgba(78,33,32,0.05)]">
-        <div className="flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto">
+      <header className="bg-background/80 backdrop-blur-md sticky top-0 z-50 shadow-[0_12px_32px_rgba(78,33,32,0.05)] border-b border-outline-variant/5">
+        <div className="flex justify-between items-center w-full px-6 md:px-8 py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-8">
-            <Link to="/" className="text-2xl font-black text-primary tracking-tighter font-headline">Eventify</Link>
+            <Link to="/" className="text-2xl font-black text-primary tracking-tighter font-headline flex items-center gap-2">
+              <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>adjust</span>
+              Event Sphere
+            </Link>
             <nav className="hidden md:flex gap-6">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
                   className={cn(
-                    "font-headline font-bold text-sm tracking-tight transition-colors duration-300 pb-1",
+                    "font-headline font-bold text-sm tracking-tight transition-all duration-300 pb-1 relative",
                     isActive(link.path) 
-                      ? "text-primary border-b-2 border-primary" 
+                      ? "text-primary after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary" 
                       : "text-on-background/70 hover:text-primary"
                   )}
                 >
@@ -170,12 +174,12 @@ const AppContent: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <button 
-                onClick={() => signInWithGoogle()}
+              <Link 
+                to="/auth/attendee"
                 className="bg-primary text-on-primary px-6 py-2 rounded-full font-bold text-sm hover:scale-105 transition-transform"
               >
                 Sign In
-              </button>
+              </Link>
             )}
           </div>
         </div>
@@ -191,36 +195,27 @@ const AppContent: React.FC = () => {
           <Route path="/edit-event/:eventId" element={<CreateEvent />} />
           <Route path="/scanner" element={<Scanner />} />
           <Route path="/booking/:bookingId" element={<BookingDetails />} />
+          <Route path="/auth/:type" element={<Auth />} />
         </Routes>
       </main>
 
       {/* BottomNavBar (Mobile Only) */}
-      <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 md:hidden bg-background/90 backdrop-blur-xl z-50 rounded-t-[1.5rem] shadow-[0_-8px_24px_rgba(78,33,32,0.08)] border-t border-outline-variant/15">
+      <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-8 pt-4 md:hidden bg-background/95 backdrop-blur-2xl z-50 rounded-t-[2rem] shadow-[0_-12px_40px_rgba(0,0,0,0.12)] border-t border-outline-variant/10">
         {navLinks.map((link) => (
           <Link
             key={link.path}
             to={link.path}
             className={cn(
-              "flex flex-col items-center justify-center rounded-xl px-4 py-2 transition-all",
+              "flex flex-col items-center justify-center rounded-2xl px-5 py-2.5 transition-all duration-300 active:scale-90",
               isActive(link.path)
-                ? "bg-surface-container-low text-primary"
-                : "text-on-background/60 hover:bg-surface-container-low"
+                ? "bg-primary/10 text-primary shadow-inner"
+                : "text-on-background/50 hover:bg-surface-container-low"
             )}
           >
-            <span className="material-symbols-outlined">{link.icon}</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest mt-1">{link.name}</span>
+            <span className="material-symbols-outlined text-[26px]" style={{ fontVariationSettings: isActive(link.path) ? "'FILL' 1" : "'FILL' 0" }}>{link.icon}</span>
+            <span className="text-[9px] font-black uppercase tracking-[0.15em] mt-1.5">{link.name}</span>
           </Link>
         ))}
-        <Link
-          to="/my-bookings"
-          className={cn(
-            "flex flex-col items-center justify-center rounded-xl px-4 py-2 transition-all",
-            isActive('/my-bookings') ? "bg-surface-container-low text-primary" : "text-on-background/60 hover:bg-surface-container-low"
-          )}
-        >
-          <span className="material-symbols-outlined">person</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest mt-1">Profile</span>
-        </Link>
       </nav>
     </div>
   );

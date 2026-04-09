@@ -10,15 +10,7 @@ import { cn } from '../lib/utils';
 import { toast } from 'sonner';
 import { INDIAN_CITIES } from '../constants';
 
-const EventCard: React.FC<{ event: Event; currentTime: Date }> = ({ event, currentTime }) => {
-  console.log('EventCard Debug:', {
-    title: event.title,
-    availableSeats: event.availableSeats,
-    totalSeats: event.totalSeats,
-    bookingCloseTime: event.bookingCloseTime?.toDate(),
-    currentTime: currentTime
-  });
-
+const EventCard = React.memo<{ event: Event; currentTime: Date }>(({ event, currentTime }) => {
   let timeRemaining = null;
   let showTimer = false;
 
@@ -41,59 +33,67 @@ const EventCard: React.FC<{ event: Event; currentTime: Date }> = ({ event, curre
     <Link 
       to={isClosed ? '#' : `/event/${event.id}`}
       className={cn(
-        "bg-surface-container-lowest rounded-xl p-4 shadow-sm group hover:shadow-lg transition-shadow flex flex-col",
-        isClosed && "cursor-default"
+        "bg-surface-container-lowest rounded-xl p-4 shadow-sm group hover:shadow-lg transition-all duration-300 flex flex-col h-full",
+        isClosed && "opacity-75 grayscale-[0.5] cursor-default"
       )}
       onClick={(e) => isClosed && e.preventDefault()}
     >
-      <div className="relative overflow-hidden rounded-lg h-40 mb-4">
+      <div className="relative overflow-hidden rounded-lg h-48 mb-4">
         <img 
           src={event.imageUrl} 
           alt={event.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
         {showTimer && (
-          <div className="absolute top-2 left-2 bg-error text-on-error text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 animate-pulse">
-            <span className="material-symbols-outlined text-xs">timer</span> {formatTime(timeRemaining!)}
+          <div className="absolute top-2 left-2 bg-error text-on-error text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-lg animate-pulse">
+            <span className="material-symbols-outlined text-[14px]">timer</span> {formatTime(timeRemaining!)}
           </div>
         )}
+        <div className="absolute bottom-2 right-2 bg-background/90 backdrop-blur px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest">
+          {event.category}
+        </div>
       </div>
-      <div className="flex justify-between items-start mb-2">
-        <h4 className="font-headline font-bold text-lg leading-tight line-clamp-1">{event.title}</h4>
-        <span className="text-primary font-black text-sm">
-          {event.price === 0 || !event.price ? 'Free' : `₹${event.price.toFixed(2)}`}
+      <div className="flex justify-between items-start mb-2 gap-2">
+        <h4 className="font-headline font-black text-lg leading-tight line-clamp-2">{event.title}</h4>
+        <span className="text-primary font-black text-base shrink-0">
+          {event.ticketTypes?.[0]?.price === 0 ? 'Free' : `₹${event.ticketTypes?.[0]?.price || 0}`}
         </span>
       </div>
-      <div className="flex items-center gap-3 text-on-surface-variant text-xs mb-4">
-        <div className="flex items-center gap-1">
-          <span className="material-symbols-outlined text-sm">calendar_month</span> 
-          {event.date.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+      <div className="flex flex-col gap-1.5 text-on-surface-variant text-xs mb-4">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-sm text-primary">calendar_month</span> 
+          <span className="font-medium">{event.date.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })}</span>
         </div>
-        <div className="flex items-center gap-1">
-          <span className="material-symbols-outlined text-sm">location_on</span> 
-          {event.venue}, {event.city}
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-sm text-primary">location_on</span> 
+          <span className="font-medium line-clamp-1">{event.venue}, {event.city}</span>
         </div>
       </div>
-      <div className="flex items-center justify-between mt-auto">
+      <div className="flex items-center justify-between mt-auto pt-4 border-t border-outline-variant/10">
         <div className="flex flex-col">
-          <span className="text-xs font-bold text-primary">{event.availableSeats} seats left</span>
-          <span className="text-[10px] text-on-surface-variant font-medium">
-            {Math.max(0, event.totalSeats - event.availableSeats)} attending
+          <span className={cn(
+            "text-xs font-black",
+            event.availableSeats < 10 ? "text-error" : "text-primary"
+          )}>
+            {event.availableSeats === 0 ? 'Sold Out' : `${event.availableSeats} seats left`}
+          </span>
+          <span className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">
+            {event.soldCount || 0} attending
           </span>
         </div>
-        <button 
-          disabled={isClosed}
-          className={cn(
-            "bg-primary text-on-primary px-4 py-1.5 rounded-full text-xs font-bold hover:scale-105 transition-transform",
-            isClosed && "bg-surface-container-highest text-on-surface-variant cursor-not-allowed hover:scale-100"
-          )}
-        >
-          {isClosed ? 'Closed' : 'Join'}
-        </button>
+        <div className={cn(
+          "px-5 py-2 rounded-full text-xs font-black transition-all",
+          isClosed 
+            ? "bg-surface-container-highest text-on-surface-variant" 
+            : "bg-primary text-on-primary shadow-md group-hover:shadow-lg group-hover:scale-105"
+        )}>
+          {isClosed ? 'Closed' : 'View Details'}
+        </div>
       </div>
     </Link>
   );
-};
+});
 const Home: React.FC = () => {
   const { user, profile } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
@@ -153,29 +153,41 @@ const Home: React.FC = () => {
   };
 
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showAllEvents, setShowAllEvents] = useState(false);
+  const INITIAL_DISPLAY_LIMIT = 6;
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000); // Update every second for real-time responsiveness
+    const timer = setInterval(() => setCurrentTime(new Date()), 10000); // Update every 10 seconds to reduce re-renders
     return () => clearInterval(timer);
   }, []);
 
-  const filteredEvents = events.filter(event => {
-    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.venue.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || event.category === selectedCategory;
-    const matchesCity = !selectedCity || (event.city && event.city.toLowerCase() === selectedCity.toLowerCase());
-    return matchesSearch && matchesCategory && matchesCity;
-  });
+  const filteredEvents = React.useMemo(() => {
+    return events.filter(event => {
+      const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           event.venue.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === 'All' || event.category === selectedCategory;
+      const matchesCity = !selectedCity || (event.city && event.city.toLowerCase() === selectedCity.toLowerCase());
+      return matchesSearch && matchesCategory && matchesCity;
+    });
+  }, [events, searchTerm, selectedCategory, selectedCity]);
 
-  const closingSoonEvents = filteredEvents.filter(event => {
-    if (!event.bookingCloseTime) return false;
-    const closeTime = event.bookingCloseTime.toDate().getTime();
-    const now = currentTime.getTime();
-    const diff = closeTime - now;
-    return diff > 0 && diff <= 20 * 60 * 1000;
-  });
+  const closingSoonEvents = React.useMemo(() => {
+    return filteredEvents.filter(event => {
+      if (!event.bookingCloseTime) return false;
+      const closeTime = event.bookingCloseTime.toDate().getTime();
+      const now = currentTime.getTime();
+      const diff = closeTime - now;
+      return diff > 0 && diff <= 20 * 60 * 1000;
+    });
+  }, [filteredEvents, currentTime]);
 
-  const otherEvents = filteredEvents.filter(event => !closingSoonEvents.includes(event));
+  const otherEvents = React.useMemo(() => {
+    return filteredEvents.filter(event => !closingSoonEvents.some(ce => ce.id === event.id));
+  }, [filteredEvents, closingSoonEvents]);
+
+  const displayedOtherEvents = React.useMemo(() => {
+    return showAllEvents ? otherEvents : otherEvents.slice(0, INITIAL_DISPLAY_LIMIT);
+  }, [otherEvents, showAllEvents]);
 
   return (
     <div className="max-w-7xl mx-auto w-full px-8 pt-8 pb-24 md:pb-12">
@@ -189,13 +201,13 @@ const Home: React.FC = () => {
           The Kinetic <span className="text-primary italic">Pulse</span> <br/>of your City.
         </motion.h1>
         
-        <div className="flex flex-wrap gap-3 mb-10">
+        <div className="flex overflow-x-auto pb-4 md:pb-0 md:flex-wrap gap-3 mb-10 no-scrollbar -mx-8 px-8 md:mx-0 md:px-0">
           {categories.map((cat) => (
             <button
               key={cat.name}
               onClick={() => setSelectedCategory(cat.name)}
               className={cn(
-                "px-6 py-3 rounded-full font-bold flex items-center gap-2 transition-all duration-300",
+                "px-6 py-3 rounded-full font-bold flex items-center gap-2 transition-all duration-300 whitespace-nowrap",
                 selectedCategory === cat.name
                   ? "bg-primary text-on-primary shadow-lg scale-105"
                   : "bg-surface-container-high text-on-surface hover:bg-surface-container-highest"
@@ -260,10 +272,22 @@ const Home: React.FC = () => {
           </div>
 
           <div ref={eventsGridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {otherEvents.map((event) => (
+            {displayedOtherEvents.map((event) => (
               <EventCard key={`${event.id}-${event.bookingCloseTime?.toMillis()}`} event={event} currentTime={currentTime} />
             ))}
           </div>
+
+          {otherEvents.length > INITIAL_DISPLAY_LIMIT && !showAllEvents && (
+            <div className="flex justify-center pt-8">
+              <button 
+                onClick={() => setShowAllEvents(true)}
+                className="group flex items-center gap-2 px-8 py-4 bg-surface-container-high hover:bg-primary hover:text-on-primary rounded-full font-bold transition-all duration-300 shadow-sm hover:shadow-lg"
+              >
+                View All Events
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          )}
 
           {filteredEvents.length === 0 && !loading && (
             <div className="text-center py-20 bg-surface-container-low rounded-2xl">

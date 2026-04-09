@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { collection, addDoc, doc, updateDoc, getDoc, serverTimestamp, Timestamp, deleteField } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc, getDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db, auth, handleFirestoreError, OperationType } from '../firebase';
 import { toast } from 'sonner';
 import { useNavigate, useParams } from 'react-router-dom';
 import { INDIAN_CITIES, CITY_COLLEGES } from '../constants';
+import { cn } from '../lib/utils';
 
 export default function CreateEvent() {
   const { user, profile, isAuthReady } = useAuth();
@@ -23,8 +24,12 @@ export default function CreateEvent() {
     city: '',
     category: 'Music',
     totalSeats: 100,
-    price: 0,
-    hasEarlyBird: false,
+    ticketTypes: [
+      { id: 'early', name: 'Early Bird', description: 'Limited availability', price: 199, type: 'early', enabled: true, capacity: 20 },
+      { id: 'regular', name: 'Regular', description: 'Standard entry', price: 299, type: 'regular', enabled: true, capacity: 50 },
+      { id: 'vip', name: 'VIP', description: 'Priority entry + perks', price: 999, type: 'vip', enabled: false, capacity: 10 },
+      { id: 'group', name: 'Group (4+)', description: 'Discounted per person', price: 249, type: 'group', enabled: false, capacity: 20 }
+    ],
     imageUrl: ''
   });
 
@@ -63,8 +68,12 @@ export default function CreateEvent() {
             city: data.city || '',
             category: data.category,
             totalSeats: data.totalSeats,
-            price: data.price || 0,
-            hasEarlyBird: data.hasEarlyBird || false,
+            ticketTypes: data.ticketTypes || [
+              { id: 'early', name: 'Early Bird', description: 'Limited availability', price: 199, type: 'early', enabled: true, capacity: 20 },
+              { id: 'regular', name: 'Regular', description: 'Standard entry', price: 299, type: 'regular', enabled: true, capacity: 50 },
+              { id: 'vip', name: 'VIP', description: 'Priority entry + perks', price: 999, type: 'vip', enabled: false, capacity: 10 },
+              { id: 'group', name: 'Group (4+)', description: 'Discounted per person', price: 249, type: 'group', enabled: false, capacity: 20 }
+            ],
             imageUrl: data.imageUrl
           });
         }
@@ -84,6 +93,15 @@ export default function CreateEvent() {
         ? new Date(`${formData.bookingCloseDate}T${formData.bookingCloseTime}`) 
         : null;
         
+      const totalSeats = formData.ticketTypes
+        .filter(t => t.enabled)
+        .reduce((acc, t) => acc + Number(t.capacity), 0);
+
+      const ticketTypesWithAvailable = formData.ticketTypes.map(t => ({
+        ...t,
+        available: t.enabled ? Number(t.capacity) : 0
+      }));
+
       const eventData: any = {
         title: formData.title,
         description: formData.description,
@@ -91,14 +109,16 @@ export default function CreateEvent() {
         venue: formData.venue,
         city: formData.city,
         category: formData.category,
-        totalSeats: Number(formData.totalSeats),
-        price: Number(formData.price),
-        hasEarlyBird: formData.hasEarlyBird,
+        totalSeats: totalSeats,
+        ticketTypes: ticketTypesWithAvailable,
         imageUrl: formData.imageUrl || `https://picsum.photos/seed/${formData.title}/800/600`,
         organizerId: user.uid,
         organizerName: user.displayName || 'Anonymous',
-        bookingCloseTime: closeDate ? Timestamp.fromDate(closeDate) : deleteField()
       };
+      
+      if (closeDate) {
+        eventData.bookingCloseTime = Timestamp.fromDate(closeDate);
+      }
 
       if (eventId) {
         try {
@@ -106,8 +126,23 @@ export default function CreateEvent() {
           const eventSnap = await getDoc(eventRef);
           if (eventSnap.exists()) {
             const oldData = eventSnap.data();
-            const seatDiff = Number(formData.totalSeats) - oldData.totalSeats;
+            const seatDiff = totalSeats - oldData.totalSeats;
             eventData.availableSeats = Math.max(0, oldData.availableSeats + seatDiff);
+            eventData.soldCount = oldData.soldCount || 0;
+            
+            // For existing events, we need to handle ticket availability carefully
+            // For simplicity in this update, we'll just reset them if they weren't there
+            eventData.ticketTypes = ticketTypesWithAvailable.map(t => {
+              const oldTicket = oldData.ticketTypes?.find((ot: any) => ot.id === t.id);
+              if (oldTicket) {
+                const capDiff = Number(t.capacity) - (oldTicket.capacity || 0);
+                return {
+                  ...t,
+                  available: Math.max(0, (oldTicket.available || 0) + capDiff)
+                };
+              }
+              return t;
+            });
           }
           await updateDoc(eventRef, eventData);
         } catch (error) {
@@ -116,7 +151,8 @@ export default function CreateEvent() {
         toast.success('Event updated successfully!');
       } else {
         try {
-          eventData.availableSeats = Number(formData.totalSeats);
+          eventData.availableSeats = totalSeats;
+          eventData.soldCount = 0;
           eventData.createdAt = serverTimestamp();
           await addDoc(collection(db, 'events'), eventData);
         } catch (error) {
@@ -273,50 +309,79 @@ export default function CreateEvent() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Total Capacity</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">groups</span>
-                <input 
-                  required
-                  type="number" 
-                  min="1"
-                  value={formData.totalSeats}
-                  onChange={(e) => setFormData({...formData, totalSeats: Number(e.target.value)})}
-                  className="w-full pl-12 pr-6 py-4 bg-surface-container-low border border-outline-variant/15 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary transition-all font-medium"
-                />
-              </div>
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold font-headline">Ticket Pricing</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {formData.ticketTypes.map((ticket, index) => (
+                <div 
+                  key={ticket.id} 
+                  className={cn(
+                    "p-6 rounded-2xl border transition-all space-y-4",
+                    ticket.enabled 
+                      ? "bg-surface-container-low border-outline-variant/15" 
+                      : "bg-surface-container border-transparent opacity-60"
+                  )}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <input 
+                        type="checkbox"
+                        checked={ticket.enabled}
+                        onChange={(e) => {
+                          const newTypes = [...formData.ticketTypes];
+                          newTypes[index].enabled = e.target.checked;
+                          setFormData({...formData, ticketTypes: newTypes});
+                        }}
+                        className="w-5 h-5 rounded border-outline-variant/30 text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm font-bold">{ticket.name}</span>
+                    </div>
+                    <span className={cn(
+                      "text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded",
+                      ticket.type === 'early' ? "bg-primary/10 text-primary" :
+                      ticket.type === 'vip' ? "bg-tertiary/10 text-tertiary" :
+                      "bg-on-surface/5 text-on-surface-variant"
+                    )}>
+                      {ticket.type}
+                    </span>
+                  </div>
+                  
+                  {ticket.enabled && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Price (₹)</label>
+                        <input 
+                          type="number"
+                          min="0"
+                          value={ticket.price}
+                          onChange={(e) => {
+                            const newTypes = [...formData.ticketTypes];
+                            newTypes[index].price = Number(e.target.value);
+                            setFormData({...formData, ticketTypes: newTypes});
+                          }}
+                          className="w-full px-4 py-2 bg-surface-container border border-outline-variant/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary transition-all font-bold"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Tickets</label>
+                        <input 
+                          type="number"
+                          min="1"
+                          value={ticket.capacity}
+                          onChange={(e) => {
+                            const newTypes = [...formData.ticketTypes];
+                            newTypes[index].capacity = Number(e.target.value);
+                            setFormData({...formData, ticketTypes: newTypes});
+                          }}
+                          className="w-full px-4 py-2 bg-surface-container border border-outline-variant/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary transition-all font-bold"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-on-surface-variant italic">{ticket.description}</p>
+                </div>
+              ))}
             </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Ticket Price (₹)</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">payments</span>
-                <input 
-                  required
-                  type="number" 
-                  min="0"
-                  step="0.01"
-                  value={formData.price}
-                  onChange={(e) => setFormData({...formData, price: Number(e.target.value)})}
-                  className="w-full pl-12 pr-6 py-4 bg-surface-container-low border border-outline-variant/15 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary transition-all font-medium"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 bg-surface-container-low p-4 rounded-2xl border border-outline-variant/15">
-            <input
-              type="checkbox"
-              id="earlyBird"
-              checked={formData.hasEarlyBird}
-              onChange={(e) => setFormData({...formData, hasEarlyBird: e.target.checked})}
-              className="w-5 h-5 rounded border-outline-variant/30 text-primary focus:ring-primary"
-            />
-            <label htmlFor="earlyBird" className="flex flex-col cursor-pointer">
-              <span className="font-bold text-sm">Enable Early Bird Pricing</span>
-              <span className="text-xs text-on-surface-variant">The first 25% of tickets booked will be at a 75% discount.</span>
-            </label>
           </div>
 
           <div className="space-y-2">

@@ -7,6 +7,17 @@ export interface UserProfile {
   createdAt: any; // Firestore Timestamp
 }
 
+export interface TicketType {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  type: 'early' | 'regular' | 'vip' | 'group';
+  enabled: boolean;
+  capacity: number;
+  available?: number;
+}
+
 export interface Event {
   id: string;
   title: string;
@@ -19,8 +30,8 @@ export interface Event {
   imageUrl: string;
   totalSeats: number;
   availableSeats: number;
-  price: number;
-  hasEarlyBird?: boolean;
+  soldCount: number;
+  ticketTypes: TicketType[];
   organizerId: string;
   organizerName: string;
   createdAt: any; // Firestore Timestamp
@@ -33,6 +44,8 @@ export interface Booking {
   eventTitle: string;
   eventDate: any; // Firestore Timestamp
   ticketCount: number;
+  ticketTypeId: string;
+  ticketTypeName: string;
   totalPrice: number;
   qrCode: string;
   attendeeName: string;

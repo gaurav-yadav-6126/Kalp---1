@@ -26,6 +26,23 @@
         "imageUrl": { "type": "string", "format": "uri" },
         "totalSeats": { "type": "number" },
         "availableSeats": { "type": "number" },
+        "soldCount": { "type": "number" },
+        "ticketTypes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "price": { "type": "number" },
+              "type": { "type": "string", "enum": ["early", "regular", "vip", "group"] },
+              "enabled": { "type": "boolean" },
+              "capacity": { "type": "number" },
+              "available": { "type": "number" }
+            }
+          }
+        },
         "organizerId": { "type": "string" },
         "organizerName": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
@@ -44,6 +61,8 @@
         "eventTitle": { "type": "string" },
         "eventDate": { "type": "string" },
         "numberOfTickets": { "type": "number" },
+        "ticketTypeId": { "type": "string" },
+        "ticketTypeName": { "type": "string" },
         "totalPrice": { "type": "number" },
         "qrCodeData": { "type": "string" },
         "status": { "type": "string", "enum": ["booked", "used", "cancelled"] },

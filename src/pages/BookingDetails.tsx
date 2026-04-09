@@ -4,6 +4,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { Booking } from '../types';
 import { motion } from 'motion/react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useAuth } from '../contexts/AuthContext';
 import { Ticket, Calendar, User, Mail, CheckCircle, ArrowLeft, MapPin } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -129,10 +130,10 @@ const BookingDetails: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant mb-4 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[14px]">confirmation_number</span> Guests
+                  <span className="material-symbols-outlined text-[14px]">confirmation_number</span> Ticket Type
                 </h3>
-                <p className="text-xl font-bold">{booking.ticketCount} People</p>
-                <p className="text-xs text-on-surface-variant font-medium mt-1">Standard Entry Pass</p>
+                <p className="text-xl font-bold">{booking.ticketTypeName || 'Standard'}</p>
+                <p className="text-xs text-on-surface-variant font-medium mt-1">{booking.ticketCount} Guest{booking.ticketCount > 1 ? 's' : ''}</p>
               </div>
             </section>
 
@@ -158,6 +159,21 @@ const BookingDetails: React.FC = () => {
                 </span>
               </div>
             </section>
+
+            {/* QR Code Section */}
+            {booking.status !== 'cancelled' && (
+              <section className="flex flex-col items-center justify-center pt-6">
+                <div className="bg-white p-6 rounded-[2rem] shadow-xl border border-outline-variant/10 mb-4">
+                  <QRCodeSVG value={booking.qrCode} size={200} />
+                </div>
+                <p className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-on-surface-variant">
+                  {booking.id.toUpperCase()}
+                </p>
+                <p className="text-xs text-on-surface-variant mt-2 font-medium">
+                  Scan this code at the venue for entry
+                </p>
+              </section>
+            )}
 
             {isOrganizer && booking.status !== 'used' && (
               <div className="pt-4">

@@ -16,7 +16,7 @@ interface AuthContextType {
   user: User | null;
   profile: UserProfile | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: (role?: 'user' | 'organizer') => Promise<void>;
   signOut: () => Promise<void>;
   isAuthReady: boolean;
 }
@@ -40,16 +40,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setProfile(userDoc.data() as UserProfile);
         } else {
           // Create default profile for new user
+          const intendedRole = sessionStorage.getItem('intendedRole') as 'user' | 'organizer' | null;
           const isDesignatedAdmin = firebaseUser.email === 'gy426408@gmail.com';
+          
           const newProfile: UserProfile = {
             uid: firebaseUser.uid,
             name: firebaseUser.displayName || 'Anonymous User',
             email: firebaseUser.email || '',
-            role: isDesignatedAdmin ? 'admin' : 'user',
+            role: isDesignatedAdmin ? 'admin' : (intendedRole || 'user'),
             createdAt: serverTimestamp(),
           };
           await setDoc(doc(db, 'users', firebaseUser.uid), newProfile);
           setProfile(newProfile);
+          sessionStorage.removeItem('intendedRole');
         }
       } else {
         setProfile(null);
@@ -62,13 +65,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (role?: 'user' | 'organizer') => {
+    if (role) {
+      sessionStorage.setItem('intendedRole', role);
+    }
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     try {
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Error signing in with Google", error);
+      sessionStorage.removeItem('intendedRole');
     }
   };
 

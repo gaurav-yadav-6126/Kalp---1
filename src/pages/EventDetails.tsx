@@ -17,12 +17,13 @@ const EventDetails: React.FC = () => {
   const [ticketCount, setTicketCount] = useState(1);
   const [attendeeName, setAttendeeName] = useState('');
   const [attendeeEmail, setAttendeeEmail] = useState('');
+  const [selectedTicketId, setSelectedTicketId] = useState<string>('regular');
   const [isBooking, setIsBooking] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    const timer = setInterval(() => setCurrentTime(new Date()), 10000); // Update every 10 seconds
     return () => clearInterval(timer);
   }, []);
 
@@ -37,7 +38,14 @@ const EventDetails: React.FC = () => {
     if (!id) return;
     const unsubscribe = onSnapshot(doc(db, 'events', id), (doc) => {
       if (doc.exists()) {
-        setEvent({ id: doc.id, ...doc.data() } as Event);
+        const eventData = { id: doc.id, ...doc.data() } as Event;
+        setEvent(eventData);
+        
+        // Set default selected ticket to the first enabled one
+        const firstEnabled = eventData.ticketTypes?.find(t => t.enabled);
+        if (firstEnabled && !eventData.ticketTypes?.find(t => t.id === selectedTicketId)?.enabled) {
+          setSelectedTicketId(firstEnabled.id);
+        }
       } else {
         toast.error('Event not found');
         navigate('/');
@@ -47,7 +55,7 @@ const EventDetails: React.FC = () => {
       handleFirestoreError(error, OperationType.GET, `events/${id}`);
     });
     return () => unsubscribe();
-  }, [id, navigate]);
+  }, [id, navigate, selectedTicketId]);
 
   const handleBooking = async () => {
     if (!user || !event || !id) {
@@ -55,8 +63,14 @@ const EventDetails: React.FC = () => {
       return;
     }
 
-    if (ticketCount > event.availableSeats) {
-      toast.error('Not enough seats available');
+    const selectedTicket = event.ticketTypes.find(t => t.id === selectedTicketId);
+    if (!selectedTicket || !selectedTicket.enabled) {
+      toast.error('Selected ticket type is not available');
+      return;
+    }
+
+    if (ticketCount > (selectedTicket.available ?? event.availableSeats)) {
+      toast.error('Not enough tickets available for this tier');
       return;
     }
 
@@ -74,13 +88,17 @@ const EventDetails: React.FC = () => {
           eventDoc = await transaction.get(eventRef);
         } catch (error) {
           handleFirestoreError(error, OperationType.GET, `events/${id}`);
-          return; // Should not reach here due to throw
+          return;
         }
         
         if (!eventDoc.exists()) throw new Error('Event does not exist');
         
-        const currentAvailable = eventDoc.data().availableSeats;
-        if (currentAvailable < ticketCount) throw new Error('Not enough seats');
+        const eventData = eventDoc.data() as Event;
+        const currentTicketIndex = eventData.ticketTypes.findIndex(t => t.id === selectedTicketId);
+        const currentTicket = eventData.ticketTypes[currentTicketIndex];
+
+        if (!currentTicket || !currentTicket.enabled) throw new Error('Ticket tier is disabled');
+        if ((currentTicket.available ?? 0) < ticketCount) throw new Error('Not enough tickets in this tier');
 
         const bookingRef = doc(collection(db, 'bookings'));
         const bookingData: Omit<Booking, 'id'> = {
@@ -89,12 +107,14 @@ const EventDetails: React.FC = () => {
           eventTitle: event.title,
           eventDate: event.date,
           ticketCount,
+          ticketTypeId: selectedTicket.id,
+          ticketTypeName: selectedTicket.name,
           totalPrice,
           attendeeName,
           attendeeEmail,
           status: 'confirmed',
           createdAt: serverTimestamp() as any,
-          qrCode: bookingRef.id // Use the document ID as the QR code
+          qrCode: bookingRef.id
         };
 
         const notificationRef = doc(collection(db, 'notifications'));
@@ -107,10 +127,19 @@ const EventDetails: React.FC = () => {
           type: 'booking'
         };
 
+        // Update ticket types array with new availability
+        const updatedTicketTypes = [...eventData.ticketTypes];
+        updatedTicketTypes[currentTicketIndex] = {
+          ...currentTicket,
+          available: (currentTicket.available ?? 0) - ticketCount
+        };
+
         transaction.set(bookingRef, bookingData);
         transaction.set(notificationRef, notificationData);
         transaction.update(eventRef, {
-          availableSeats: currentAvailable - ticketCount
+          availableSeats: (eventData.availableSeats || 0) - ticketCount,
+          soldCount: (eventData.soldCount || 0) + ticketCount,
+          ticketTypes: updatedTicketTypes
         });
       });
 
@@ -133,26 +162,8 @@ const EventDetails: React.FC = () => {
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!event) return null;
 
-  const basePrice = event.price || 0;
-  const earlyBirdCapacity = Math.floor(event.totalSeats * 0.25);
-  const ticketsSold = event.totalSeats - event.availableSeats;
-  
-  let totalPrice = 0;
-  let currentSold = ticketsSold;
-  let earlyBirdTicketsApplied = 0;
-
-  for (let i = 0; i < ticketCount; i++) {
-    if (event.hasEarlyBird && currentSold < earlyBirdCapacity) {
-      totalPrice += basePrice * 0.25; // 75% discount means they pay 25%
-      earlyBirdTicketsApplied++;
-    } else {
-      totalPrice += basePrice;
-    }
-    currentSold++;
-  }
-
-  const isEarlyBirdActive = event.hasEarlyBird && ticketsSold < earlyBirdCapacity;
-  const earlyBirdTicketsLeft = Math.max(0, earlyBirdCapacity - ticketsSold);
+  const selectedTicket = event.ticketTypes?.find(t => t.id === selectedTicketId) || event.ticketTypes?.[0] || { price: 0, name: 'Standard', id: 'regular' };
+  const totalPrice = (selectedTicket.price || 0) * ticketCount;
 
   let timeRemaining = null;
   let isBookingClosed = false;
@@ -211,12 +222,7 @@ const EventDetails: React.FC = () => {
           <div className="sticky top-28 bg-surface-container-lowest rounded-2xl p-8 shadow-xl border border-outline-variant/10">
             <div className="mb-8">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="font-headline text-2xl font-black tracking-tight">Reserve Your Spot</h2>
-                {isEarlyBirdActive && !isBookingClosed && (
-                  <span className="bg-primary text-on-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest animate-pulse">
-                    Early Bird Active
-                  </span>
-                )}
+                <h2 className="font-headline text-2xl font-black tracking-tight">Select Tickets</h2>
               </div>
               <p className="text-sm text-on-surface-variant mb-4">
                 {event.availableSeats} seats remaining
@@ -238,21 +244,49 @@ const EventDetails: React.FC = () => {
                   <span className="text-sm font-bold text-on-surface">Bookings are now closed for this event.</span>
                 </div>
               )}
-              
-              {isEarlyBirdActive && !isBookingClosed && (
-                <div className="bg-primary-container/30 border border-primary/20 p-4 rounded-xl flex items-start gap-3">
-                  <span className="material-symbols-outlined text-primary mt-0.5">local_activity</span>
-                  <div>
-                    <p className="text-sm font-bold text-on-surface">75% Off Early Bird Discount!</p>
-                    <p className="text-xs text-on-surface-variant">Only {earlyBirdTicketsLeft} discounted ticket{earlyBirdTicketsLeft !== 1 ? 's' : ''} remaining.</p>
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="space-y-6 mb-8">
+              {/* Ticket Types Selection */}
+              <div className="space-y-3">
+                {event.ticketTypes?.filter(t => t.enabled).map((ticket) => (
+                  <button
+                    key={ticket.id}
+                    disabled={isBookingClosed || (ticket.available ?? 0) === 0}
+                    onClick={() => setSelectedTicketId(ticket.id)}
+                    className={cn(
+                      "w-full p-4 rounded-2xl border-2 transition-all flex items-center justify-between text-left group",
+                      selectedTicketId === ticket.id 
+                        ? "border-primary bg-primary/5 shadow-md" 
+                        : "border-outline-variant/10 bg-surface-container-low hover:border-outline-variant/30",
+                      (ticket.available ?? 0) === 0 && "opacity-50 grayscale cursor-not-allowed"
+                    )}
+                  >
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold">{ticket.name}</span>
+                        {ticket.type === 'early' && <span className="bg-primary text-on-primary text-[8px] px-1.5 py-0.5 rounded font-black uppercase">SAVE</span>}
+                        {ticket.type === 'vip' && <span className="bg-tertiary text-on-tertiary text-[8px] px-1.5 py-0.5 rounded font-black uppercase">PREMIUM</span>}
+                      </div>
+                      <div className="flex flex-col gap-0.5 mt-1">
+                        <span className="text-[10px] text-on-surface-variant font-medium">{ticket.description}</span>
+                        <span className={cn(
+                          "text-[9px] font-black uppercase tracking-widest",
+                          (ticket.available ?? 0) < 5 ? "text-error" : "text-primary"
+                        )}>
+                          {(ticket.available ?? 0) === 0 ? 'Sold Out' : `${ticket.available} left`}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="font-headline font-black text-xl">
+                      {ticket.price === 0 ? 'Free' : `₹${ticket.price}`}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
               {/* Attendee Info */}
-              <div className="space-y-4">
+              <div className="space-y-4 pt-4 border-t border-outline-variant/10">
                 <div>
                   <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 block">Full Name</label>
                   <input 
@@ -277,36 +311,24 @@ const EventDetails: React.FC = () => {
 
               {/* Ticket Counter */}
               <div className="flex items-center justify-between p-4 rounded-xl border border-outline-variant/20 bg-surface-container-low/50">
-                <span className="font-bold">Number of Tickets</span>
+                <span className="font-bold">Quantity</span>
                 <div className="flex items-center gap-4">
                   <button 
                     onClick={() => setTicketCount(Math.max(1, ticketCount - 1))}
-                    className="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center font-bold hover:bg-surface-container-high transition-colors"
+                    className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center font-bold hover:bg-surface-container-high transition-colors text-xl"
                   >-</button>
-                  <span className="font-bold w-4 text-center">{ticketCount}</span>
+                  <span className="font-bold w-6 text-center text-lg">{ticketCount}</span>
                   <button 
                     onClick={() => setTicketCount(Math.min(10, ticketCount + 1))}
-                    className="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center font-bold hover:bg-surface-container-high transition-colors"
+                    className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center font-bold hover:bg-surface-container-high transition-colors text-xl"
                   >+</button>
                 </div>
               </div>
 
               {/* Total Price */}
-              <div className="pt-4 border-t border-outline-variant/10 space-y-2">
-                {earlyBirdTicketsApplied > 0 && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-on-surface-variant">Early Bird ({earlyBirdTicketsApplied}x)</span>
-                    <span className="font-bold text-primary">₹{(basePrice * 0.25 * earlyBirdTicketsApplied).toFixed(2)}</span>
-                  </div>
-                )}
-                {ticketCount - earlyBirdTicketsApplied > 0 && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-on-surface-variant">Standard ({ticketCount - earlyBirdTicketsApplied}x)</span>
-                    <span className="font-bold">₹{(basePrice * (ticketCount - earlyBirdTicketsApplied)).toFixed(2)}</span>
-                  </div>
-                )}
-                <div className="flex items-center justify-between pt-2">
-                  <span className="font-bold text-on-surface-variant">Total Price</span>
+              <div className="pt-4 border-t border-outline-variant/10">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-on-surface-variant">Total</span>
                   <span className="font-headline text-3xl font-black text-primary">
                     {totalPrice === 0 ? 'Free' : `₹${totalPrice.toFixed(2)}`}
                   </span>
@@ -318,7 +340,7 @@ const EventDetails: React.FC = () => {
             <button 
               onClick={handleBooking}
               disabled={isBooking || event.availableSeats === 0 || isBookingClosed}
-              className="w-full bg-primary text-on-primary py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-primary text-on-primary py-5 rounded-2xl font-black text-xl shadow-lg hover:shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-1"
             >
               {isBooking ? (
                 <><span className="material-symbols-outlined animate-spin">progress_activity</span> Processing...</>
@@ -327,7 +349,10 @@ const EventDetails: React.FC = () => {
               ) : event.availableSeats === 0 ? (
                 'Sold Out'
               ) : (
-                'Book Tickets'
+                <>
+                  <span>Book Now</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-70">Secure checkout • Digital QR ticket</span>
+                </>
               )}
             </button>
           </div>
